@@ -46,7 +46,6 @@ export default defineContentScript({
     const keyInterpreter = createKeyInterpreter();
     const scrollMotion = createScrollMotion();
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let reducedMotion = reducedMotionQuery.matches;
     let linkHints: LinkHint[] = [];
     let visibleElements: VisibleElement[] = [];
     let scrollAnimationFrame: number | null = null;
@@ -54,10 +53,6 @@ export default defineContentScript({
     let hintStylesCreated = false;
     let hintContainer: HTMLDivElement | null = null;
     const NOMINAL_FRAME_ELAPSED_MS = 8;
-
-    reducedMotionQuery.addEventListener('change', (event) => {
-      reducedMotion = event.matches;
-    });
 
     function startContinuousScroll(direction: 1 | -1): void {
       stopContinuousScroll();
@@ -105,7 +100,7 @@ export default defineContentScript({
     }
 
     function scrollStep(direction: 1 | -1): void {
-      if (reducedMotion) {
+      if (reducedMotionQuery.matches) {
         stopContinuousScroll();
         window.scrollBy({ top: SCROLL_STEP_PX * direction, behavior: 'instant' });
         return;
@@ -378,10 +373,6 @@ export default defineContentScript({
     }
 
     document.addEventListener('keydown', (event) => {
-      if (event.code === 'KeyJ' || event.code === 'KeyK') {
-        // Media-query change events can be delivered after a key event.
-        reducedMotion = reducedMotionQuery.matches;
-      }
       applyResult(keyInterpreter.press(toKeyPress(event)), event);
     });
 
