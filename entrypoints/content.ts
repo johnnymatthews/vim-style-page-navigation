@@ -378,6 +378,10 @@ export default defineContentScript({
     }
 
     document.addEventListener('keydown', (event) => {
+      if (event.code === 'KeyJ' || event.code === 'KeyK') {
+        // Media-query change events can be delivered after a key event.
+        reducedMotion = reducedMotionQuery.matches;
+      }
       applyResult(keyInterpreter.press(toKeyPress(event)), event);
     });
 
