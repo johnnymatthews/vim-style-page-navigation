@@ -85,6 +85,26 @@ async function observeScrollPositionAfterFirstFrame(page: Page, key: ScrollKey):
   }), key);
 }
 
+async function observeScrollPositionAfterKeydown(page: Page, key: ScrollKey): Promise<number> {
+  return page.evaluate((pressedKey) => {
+    const code = pressedKey === 'j' ? 'KeyJ' : 'KeyK';
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    const positionAfterKeydown = window.scrollY;
+    document.dispatchEvent(new KeyboardEvent('keyup', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    return positionAfterKeydown;
+  }, key);
+}
+
 async function openFirstFramePage(): Promise<ExtensionPage> {
   const context = await openExtensionContext();
   const page = await context.newPage();
@@ -121,6 +141,39 @@ test('KeyK moves up during the first animation frame', async () => {
 
     // #then
     expect(positionAfterFirstFrame).toBeLessThanOrEqual(299);
+  } finally {
+    await context.close();
+  }
+});
+
+test('KeyJ moves down before keydown dispatch returns', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    // #when
+    const positionAfterKeydown = await observeScrollPositionAfterKeydown(page, 'j');
+
+    // #then
+    expect(positionAfterKeydown).toBeGreaterThanOrEqual(1);
+  } finally {
+    await context.close();
+  }
+});
+
+test('KeyK moves up before keydown dispatch returns', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForFunction(() => window.scrollY === 300);
+
+    // #when
+    const positionAfterKeydown = await observeScrollPositionAfterKeydown(page, 'k');
+
+    // #then
+    expect(positionAfterKeydown).toBeLessThanOrEqual(299);
   } finally {
     await context.close();
   }
