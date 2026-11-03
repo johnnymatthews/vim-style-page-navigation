@@ -1,4 +1,4 @@
-# Store listing
+# store-listing
 
 Text and answers for the Chrome Web Store and addons.mozilla.org (AMO) listings
 of `jk-nav`. Name and Summary are copies of `name` and `description` in
@@ -96,5 +96,9 @@ Chrome: Productivity > Tools. AMO: Tabs.
 - Icon: `public/icons/128x128.png`.
 - Screenshots (1280×800): `docs/store/screenshot-1-keys.png` (key overlay) and
   `docs/store/screenshot-2-link-hints.png`. Regenerate with
-  `npm run build && npx tsx docs/store/screenshots.ts`, then compress each PNG
-  with `magick <file> -colors 256 <file>` to under 150 KB.
+  `npm run build && npx tsx docs/store/screenshots.ts`, then save each as
+  24-bit RGB without alpha, which the Chrome Web Store requires:
+  `magick <file> -alpha off -type TrueColor PNG24:<file>`. A palette PNG
+  (`-colors 256`) is smaller but the Chrome Web Store rejects it.
+- Small promo tile (440×280, Chrome only, optional): `docs/store/promo-small-440x280.png`,
+  the centre of screenshot 1: `magick docs/store/screenshot-1-keys.png -resize 448x280^ -gravity center -extent 440x280 -alpha off -type TrueColor PNG24:docs/store/promo-small-440x280.png`.
