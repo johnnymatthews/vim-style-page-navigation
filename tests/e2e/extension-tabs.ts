@@ -108,7 +108,7 @@ export async function pageForUrl(context: BrowserContext, url: string): Promise<
 }
 
 export async function waitForContentScriptReady(page: Page): Promise<void> {
-  await page.locator('#vimnav-styles').waitFor({ state: 'attached' });
+  await expect.poll(() => page.locator('html').getAttribute('data-jk-nav')).toBe('ready');
 }
 
 export async function installTabSwitchTrace(worker: Worker): Promise<void> {
