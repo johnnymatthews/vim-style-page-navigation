@@ -1,6 +1,6 @@
 {
   "name": "jk-nav",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Navigate pages using vim-style keyboard shortcuts.",
   "private": true,
   "type": "module",
