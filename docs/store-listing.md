@@ -25,13 +25,12 @@ KEYS
 
 HIGHLIGHTS
 
-- Tab switching with Shift+J / Shift+K.
-- Keys are matched by physical key position, so they work in Russian and other non-Latin layouts, and Caps Lock does not change them.
-- Keys stay silent while you type in a text field, text area, drop-down or editable content, and during IME composition. Buttons, checkboxes and sliders do not block the keys.
-- A tap of j / k scrolls one smooth step; holding scrolls continuously and stops the moment you release.
-- Keys with Ctrl, Alt or Meta pass through to the browser, so Ctrl+F still opens the find bar.
-- Up to 900 link hints at a time: links first, then buttons, then form fields.
-- Manifest V3, one package for Chrome and Firefox, with unit and browser tests.
+- Added Tab switching with Shift+J / Shift+K: wraps at both ends of the tab strip and skips collapsed tab groups.
+- Keys work in every keyboard layout. They are matched by physical key position, so Russian, German or any other layout behaves like QWERTY, and Caps Lock changes nothing.
+- Keys never fire while you type: text fields, text areas, drop-downs, editable content and IME composition are left alone. Buttons, checkboxes and sliders do not block the keys.
+- Smooth scrolling: a tap of j / k glides one step; holding the key keeps scrolling and stops the moment you release it.
+- Shortcuts with Ctrl, Alt or Meta pass through, so Ctrl+F still opens the find bar.
+- One extension for Chrome and Firefox.
 
 PRIVACY
 
@@ -81,5 +80,6 @@ Chrome: Productivity > Tools. AMO: Other, or Tabs.
 ## Assets
 
 - Icon: `public/icons/128x128.png`.
-- Screenshots (1280×800): `docs/store/screenshot-*.png`, built by
-  `docs/store/screenshots.ts`.
+- Screenshots (1280×800): `docs/store/screenshot-1-keys.png` (a page with the
+  key overlay) and `docs/store/screenshot-2-link-hints.png`, built by
+  `docs/store/screenshots.ts`, then compressed by hand.
