@@ -34,6 +34,17 @@ HIGHLIGHTS
 - Smooth scrolling: every j / k step is animated, and holding the key scrolls continuously.
 - Shortcuts with Ctrl, Alt or Meta pass through, so Ctrl+F still opens the find bar.
 
+PERFORMANCE
+
+jk-nav is built to stay out of your way:
+
+- Page load: the content script starts at document_start and adds about 2 ms to the load event of a page with 3,000 links (benchmark in Chromium, 20 runs).
+- Scrolling: j and k move the page in the same frame as the key press. A second press reacts in about 2 ms.
+- Link hints: f draws hints for 900 visible targets on a 3,000-link page in about 7 ms.
+- No background work: nothing runs between key presses, and no network, analytics or remote code.
+
+Method and raw numbers: https://github.com/Seigiard/jk-nav/blob/main/docs/bench/README.md
+
 PRIVACY
 
 jk-nav collects no data, makes no network requests and runs no remote code. Its only API permission is tabGroups, used to skip collapsed tab groups when switching tabs. Privacy policy: https://github.com/Seigiard/jk-nav/blob/main/PRIVACY.md
