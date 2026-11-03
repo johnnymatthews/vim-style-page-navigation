@@ -23,6 +23,6 @@ export default defineConfig({
     },
   }),
   zip: {
-    excludeSources: ['test-results/**', 'playwright-report/**'],
+    excludeSources: ['test-results/**', 'playwright-report/**', 'docs/store/*.png'],
   },
 });
