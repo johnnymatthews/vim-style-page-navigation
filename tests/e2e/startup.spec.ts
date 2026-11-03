@@ -34,11 +34,11 @@ test('Link hints have their visible styles when first shown', async () => {
     // #when
     await page.keyboard.press('f');
     const hintStyles = await page.locator('.vimnav-link-hint').evaluateAll((hints) => (
-      hints.map((hint) => getComputedStyle(hint).position)
+      hints.map((hint) => getComputedStyle(hint).backgroundColor)
     ));
 
     // #then
-    expect(hintStyles).toEqual(['fixed']);
+    expect(hintStyles).toEqual(['rgb(255, 255, 0)']);
   } finally {
     await context.close();
   }

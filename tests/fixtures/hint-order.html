@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JK Nav Link-hint order and placement fixture</title>
+    <style>
+      body {
+        position: relative;
+        min-height: 2000px;
+        margin: 0;
+      }
+
+      [data-visible-target],
+      [data-hidden-target] {
+        position: absolute;
+      }
+
+      #text-input {
+        top: 360px;
+        left: 100px;
+      }
+
+      #action-button {
+        top: 430px;
+        left: 200px;
+      }
+
+      #destination-link {
+        top: 500px;
+        left: 300px;
+      }
+
+      #display-none-link {
+        display: none;
+      }
+
+      #visibility-hidden-link {
+        top: 550px;
+        left: 400px;
+        visibility: hidden;
+      }
+
+      #zero-size-link {
+        top: 600px;
+        left: 500px;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+      }
+
+      #outside-viewport-link {
+        top: 1400px;
+        left: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <input id="text-input" data-visible-target data-hint-type="input" type="text">
+    <button id="action-button" data-visible-target data-hint-type="button" type="button">Act</button>
+    <a id="destination-link" data-visible-target data-hint-type="link" href="#destination">Destination</a>
+    <a id="display-none-link" data-hidden-target href="#hidden-display">Display none</a>
+    <a id="visibility-hidden-link" data-hidden-target href="#hidden-visibility">Visibility hidden</a>
+    <a id="zero-size-link" data-hidden-target href="#hidden-size"></a>
+    <a id="outside-viewport-link" data-hidden-target href="#outside-viewport">Outside viewport</a>
+  </body>
+</html>
