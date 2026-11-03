@@ -4,7 +4,7 @@
 
 The spec is GitHub issue #1 (`gh issue view 1`). Read it before any work; it is the source of truth for keys, FR/NFR numbers, and acceptance criteria. Domain terms are in `GLOSSARY.md`.
 
-This repo is `Seigiard/jk-nav`, a GitHub fork of `johnnymatthews/vim-style-page-navigation` (MIT; remote `upstream`). One WXT codebase builds the Manifest V3 extension for Chrome and Firefox. The default branch is `main`; pull requests target it. Upstream keeps `firefox/stable` and `chrome/stable`, one per browser; `jk-nav` builds both browsers from `main`.
+This repo is `Seigiard/jk-nav`, a GitHub fork of `johnnymatthews/vim-style-page-navigation` (MIT; remote `upstream`). One WXT codebase builds the Manifest V3 extension for Chrome and Firefox. The default branch is `main`; pull requests target it.
 
 ## Commands
 

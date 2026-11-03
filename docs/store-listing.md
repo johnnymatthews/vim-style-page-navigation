@@ -15,8 +15,6 @@ Vim keys on every page: j/k scroll, gg/G, f link hints, H/L history, Shift+J/K s
 
 JK Vim-Style Page/Tab Navigation (jk-nav) adds Vim-style keyboard navigation to every page and to the tab strip, in Chrome and Firefox, from one codebase.
 
-It is a fork of "Vim-Style Page Navigation" by Johnny Matthews (https://github.com/johnnymatthews/vim-style-page-navigation), published on AMO as "Simple Vim Scrolling". jk-nav keeps the original page keys and adds tab switching, layout-independent keys and smooth scrolling.
-
 KEYS
 
 - j / k: scroll down / up by one step (200 px). Hold the key to keep scrolling; release to stop.
@@ -25,7 +23,7 @@ KEYS
 - f: show a two-letter hint beside every visible link, button and form field. Type the hint to activate it. Esc leaves hint mode.
 - Shift+J / Shift+K: switch to the tab on the left / right. Wraps at both ends, skips hidden tabs and tabs in collapsed tab groups, never leaves the window.
 
-WHAT IS NEW COMPARED WITH THE ORIGINAL
+HIGHLIGHTS
 
 - Tab switching with Shift+J / Shift+K.
 - Keys are matched by physical key position, so they work in Russian and other non-Latin layouts, and Caps Lock does not change them.
@@ -43,6 +41,10 @@ KNOWN LIMITATIONS
 
 - Browser pages (chrome://, about:, the extension stores, built-in PDF viewers) do not allow extensions, so no key works there.
 - Sites with their own j / k shortcuts (Gmail, GitHub, X) conflict with jk-nav while you are not typing.
+
+ORIGIN
+
+jk-nav is a fork of "Vim-Style Page Navigation" by Johnny Matthews (https://github.com/johnnymatthews/vim-style-page-navigation), published on AMO as "Simple Vim Scrolling". The fork exists to ship one Manifest V3 package for both Chrome and Firefox, add tab switching and make the keys work in every keyboard layout; these changes were offered upstream as a pull request and are waiting for an answer there. The page keys of the original are kept as they were.
 
 Source code: https://github.com/Seigiard/jk-nav (MIT).
 
