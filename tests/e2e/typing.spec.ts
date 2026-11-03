@@ -244,6 +244,43 @@ test('j stays Typing while the top document is in designMode', async () => {
   });
 });
 
+test('j typed in an editable iframe changes its text without scrolling either document', async () => {
+  // #given
+  const context = await openExtensionContext();
+
+  try {
+    const page = await context.newPage();
+    await page.goto('/frame-host.html?mode=editor');
+    await waitForContentScriptReady(page);
+    const frame = page.frameLocator('#content-frame');
+    const editor = frame.locator('#editor');
+    await editor.waitFor();
+    const editableBody = frame.locator('body');
+    await editableBody.focus();
+    await editor.evaluate((target) => {
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    });
+
+    // #when
+    await editableBody.press('j');
+    await page.waitForTimeout(200);
+
+    // #then
+    expect({
+      text: await editor.textContent(),
+      frameScrollY: await frame.locator('html').evaluate(() => window.scrollY),
+      topScrollY: await page.evaluate(() => window.scrollY),
+    }).toEqual({ text: 'startj', frameScrollY: 0, topScrollY: 0 });
+  } finally {
+    await context.close();
+  }
+});
+
 test('typing navigation keys in an open shadow root text field changes only its value', async () => {
   await withFormPage(async (page) => {
     // #given
