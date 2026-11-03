@@ -40,6 +40,7 @@ export default defineContentScript({
     interface VisibleElement {
       element: HTMLElement;
       type: LinkHintType;
+      rect: DOMRect;
     }
 
     const keyInterpreter = createKeyInterpreter();
@@ -49,6 +50,7 @@ export default defineContentScript({
     let scrollAnimationFrame: number | null = null;
     let previousScrollTimestamp: number | null = null;
     let hintStylesCreated = false;
+    const NOMINAL_FRAME_ELAPSED_MS = 8;
 
     function startContinuousScroll(direction: 1 | -1): void {
       stopContinuousScroll();
@@ -67,6 +69,10 @@ export default defineContentScript({
 
     function scheduleScrollAnimation(): void {
       if (scrollAnimationFrame === null) {
+        const distance = scrollMotion.advance(NOMINAL_FRAME_ELAPSED_MS);
+        if (distance !== 0) {
+          window.scrollBy({ top: distance, behavior: 'instant' });
+        }
         previousScrollTimestamp = performance.now();
         scrollAnimationFrame = requestAnimationFrame(animateScroll);
       }
@@ -226,35 +232,43 @@ export default defineContentScript({
       );
 
       links.forEach((element) => {
-        if (isElementVisible(element)) {
-          elements.push({ element, type: 'link' });
+        const rect = element.getBoundingClientRect();
+        if (isElementVisible(element, rect)) {
+          elements.push({ element, type: 'link', rect });
         }
       });
       buttons.forEach((element) => {
-        if (isElementVisible(element)) {
-          elements.push({ element, type: 'button' });
+        const rect = element.getBoundingClientRect();
+        if (isElementVisible(element, rect)) {
+          elements.push({ element, type: 'button', rect });
         }
       });
       inputs.forEach((element) => {
-        if (isElementVisible(element)) {
-          elements.push({ element, type: 'input' });
+        const rect = element.getBoundingClientRect();
+        if (isElementVisible(element, rect)) {
+          elements.push({ element, type: 'input', rect });
         }
       });
 
       return elements;
     }
 
-    function isElementVisible(element: HTMLElement): boolean {
-      const rect = element.getBoundingClientRect();
+    function isElementVisible(element: HTMLElement, rect: DOMRect): boolean {
+      if (
+        rect.width <= 0 ||
+        rect.height <= 0 ||
+        rect.top < 0 ||
+        rect.left < 0 ||
+        rect.bottom > (window.innerHeight || document.documentElement.clientHeight) ||
+        rect.right > (window.innerWidth || document.documentElement.clientWidth)
+      ) {
+        return false;
+      }
+
+      const computedStyle = getComputedStyle(element);
       return (
-        rect.width > 0 &&
-        rect.height > 0 &&
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth) &&
-        getComputedStyle(element).display !== 'none' &&
-        getComputedStyle(element).visibility !== 'hidden' &&
+        computedStyle.display !== 'none' &&
+        computedStyle.visibility !== 'hidden' &&
         element.offsetParent !== null
       );
     }
@@ -262,17 +276,24 @@ export default defineContentScript({
     function showLinkHints(codes: string[]): void {
       ensureHintStyles();
       clearLinkHints();
+      const fragment = document.createDocumentFragment();
 
       visibleElements.forEach((item, index) => {
         const code = codes[index];
         if (code !== undefined) {
-          createLinkHint(item.element, code, item.type);
+          createLinkHint(item.element, code, item.type, item.rect, fragment);
         }
       });
+      document.body.appendChild(fragment);
     }
 
-    function createLinkHint(element: HTMLElement, code: string, type: LinkHintType): void {
-      const rect = element.getBoundingClientRect();
+    function createLinkHint(
+      element: HTMLElement,
+      code: string,
+      type: LinkHintType,
+      rect: DOMRect,
+      fragment: DocumentFragment,
+    ): void {
       const hintElement = document.createElement('div');
       hintElement.textContent = code;
       hintElement.className = 'vimnav-link-hint';
@@ -285,7 +306,7 @@ export default defineContentScript({
 
       hintElement.style.top = `${rect.top - 10}px`;
       hintElement.style.left = `${rect.left - 10}px`;
-      document.body.appendChild(hintElement);
+      fragment.appendChild(hintElement);
       linkHints.push({ element: hintElement, target: element, code, type });
     }
 
