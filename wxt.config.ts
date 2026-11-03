@@ -3,7 +3,7 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   manifestVersion: 3,
   manifest: ({ browser }) => ({
-    name: 'jk-nav',
+    name: 'JK Vim-Style Page/Tab Navigation',
     version: '1.0.0',
     description: 'Vim keys on every page: j/k scroll, gg/G, f link hints, H/L history, Shift+J/K switch tabs. Works in any keyboard layout.',
     permissions: ['tabGroups'],

@@ -5,7 +5,7 @@ of `jk-nav`. Keep this file and the manifest in `wxt.config.ts` in step.
 
 ## Name
 
-`jk-nav`
+`JK Vim-Style Page/Tab Navigation` (short name in the code and the repository: `jk-nav`)
 
 ## Summary (Chrome: 132 characters max; AMO: 250)
 
@@ -13,7 +13,7 @@ Vim keys on every page: j/k scroll, gg/G, f link hints, H/L history, Shift+J/K s
 
 ## Description
 
-jk-nav adds Vim-style keyboard navigation to every page, in Chrome and Firefox, from one codebase.
+JK Vim-Style Page/Tab Navigation (jk-nav) adds Vim-style keyboard navigation to every page and to the tab strip, in Chrome and Firefox, from one codebase.
 
 It is a fork of "Vim-Style Page Navigation" by Johnny Matthews (https://github.com/johnnymatthews/vim-style-page-navigation), published on AMO as "Simple Vim Scrolling". jk-nav keeps the original page keys and adds tab switching, layout-independent keys and smooth scrolling.
 
