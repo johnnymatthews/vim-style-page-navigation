@@ -37,7 +37,7 @@ WHAT IS NEW COMPARED WITH THE ORIGINAL
 
 PRIVACY
 
-jk-nav collects no data, makes no network requests and runs no remote code. Its only API permission is tabGroups, used to skip collapsed tab groups when switching tabs. Privacy policy: https://github.com/Seigiard/jk-nav/blob/firefox/stable/PRIVACY.md
+jk-nav collects no data, makes no network requests and runs no remote code. Its only API permission is tabGroups, used to skip collapsed tab groups when switching tabs. Privacy policy: https://github.com/Seigiard/jk-nav/blob/main/PRIVACY.md
 
 KNOWN LIMITATIONS
 
@@ -63,7 +63,7 @@ Chrome: Productivity > Tools. AMO: Other, or Tabs.
   No page data is stored or transmitted.
 - **Remote code:** No.
 - **Data usage:** Nothing collected. Certify all three statements.
-- **Privacy policy URL:** https://github.com/Seigiard/jk-nav/blob/firefox/stable/PRIVACY.md
+- **Privacy policy URL:** https://github.com/Seigiard/jk-nav/blob/main/PRIVACY.md
 
 ## AMO: submission answers
 
