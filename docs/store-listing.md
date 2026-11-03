@@ -25,15 +25,6 @@ KEYS
 - f: show a two-character hint beside up to 900 visible links, buttons and form fields. Type the hint to activate it. Esc leaves hint mode.
 - Shift+J / Shift+K: switch to the tab on the left / right. Wraps at both ends, skips hidden tabs and, in Chrome and Firefox 139 or newer, tabs in collapsed tab groups. Stays in the current window.
 
-HIGHLIGHTS
-
-- Added Tab switching with Shift+J / Shift+K alongside the page keys.
-- Keys work in every keyboard layout. They are matched by physical key position, so Russian, German or any other layout behaves like QWERTY, and Caps Lock changes nothing.
-- Typing stays yours: in text fields, text areas, drop-downs, editable content and during IME composition, the keys type text as usual, also inside web components. After you click a button, checkbox or slider, the keys keep working.
-- Link hints that behave: f does nothing on a page with no targets, a wrong first key just closes the hints, and very large pages no longer break hint mode.
-- Smooth scrolling: every j / k step is animated, and holding the key scrolls continuously.
-- Shortcuts with Ctrl, Alt or Meta pass through, so Ctrl+F still opens the find bar.
-
 PERFORMANCE
 
 jk-nav is built to stay out of your way:
@@ -44,6 +35,15 @@ jk-nav is built to stay out of your way:
 - No background work: nothing runs between key presses, and no network, analytics or remote code.
 
 Method and raw numbers: https://github.com/Seigiard/jk-nav/blob/main/docs/bench/README.md
+
+HIGHLIGHTS
+
+- Added Tab switching with Shift+J / Shift+K alongside the page keys.
+- Keys work in every keyboard layout. They are matched by physical key position, so Russian, German or any other layout behaves like QWERTY, and Caps Lock changes nothing.
+- Typing stays yours: in text fields, text areas, drop-downs, editable content and during IME composition, the keys type text as usual, also inside web components. After you click a button, checkbox or slider, the keys keep working.
+- Link hints that behave: f does nothing on a page with no targets, a wrong first key just closes the hints, and very large pages no longer break hint mode.
+- Smooth scrolling: every j / k step is animated, and holding the key scrolls continuously.
+- Shortcuts with Ctrl, Alt or Meta pass through, so Ctrl+F still opens the find bar.
 
 PRIVACY
 
