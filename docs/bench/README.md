@@ -1,9 +1,10 @@
 # Benchmark
 
-`bench.ts` measures what a user feels: how much the extension delays a page and how fast the keys react. It loads the built Chrome package, and optionally another unpacked extension, into Chromium through Playwright, opens one generated page with 3000 links and 400 paragraphs, and records per run:
+`bench.ts` measures what a user feels: how much the extension delays a page and how fast the keys react. It loads the built Chrome package, and optionally another unpacked extension, into Chromium through Playwright. The default scenario opens one generated page with 3000 links and 400 paragraphs. The `--multi-frame` scenario adds same-origin and cross-origin iframe targets.
 
 - `DOMContentLoaded` and `load` from Navigation Timing;
 - script and main-thread task time until 500 ms after `load`, from the Chrome DevTools Protocol `Performance.getMetrics`;
+- in the multi-frame scenario, script and task time from a separate `Performance` session for every cross-origin OOPIF target;
 - the time from a `j` press to the first `scroll` event (first press after load, then a second press), and from `f` to the first hint node added to the document. The start time is `performance.now()` read in the page right before the key is dispatched, so another extension that stops the event early cannot hide it.
 
 Memory is not measured. Each column is a fresh browser profile; the table shows the median and, in brackets, the 90th percentile of 20 runs.
@@ -13,9 +14,14 @@ Memory is not measured. Each column is a fresh browser profile; the table shows 
 ```sh
 npm run build
 BENCH_OTHER=/path/to/unpacked-extension BENCH_OTHER_NAME="Vimium C" npx tsx docs/bench/bench.ts 20
+
+# Multi-frame comparison. Use a build made from the before commit and the current build.
+BENCH_JK_NAV_BEFORE=/path/to/jk-nav-before/.output/chrome-mv3 \
+BENCH_JK_NAV_AFTER=.output/chrome-mv3 \
+npx tsx docs/bench/bench.ts --multi-frame 5
 ```
 
-Without `BENCH_OTHER` the table has two columns: no extension and jk-nav. The last run is in `results.json`.
+Without `BENCH_OTHER` the default table has two columns: no extension and jk-nav. The multi-frame table has no extension, jk-nav before, and jk-nav after columns. The last run is in `results.json`.
 
 ## Result
 
@@ -44,3 +50,28 @@ The second round (this table) worked on the remaining rows. Before it, on the sa
 - warm-up: one empty `requestAnimationFrame` at startup was tried against the p90 of the first `j`. With it 21.5 ms, without it 22.6 ms, within noise, so the change was dropped.
 
 The comparison is per scenario, not per product: Vimium C has many more commands and its own options; only scrolling, link hints and page load are compared here.
+
+## Multi-frame scenario
+
+The multi-frame fixture has 3000 links, 400 paragraphs, three same-origin ad-like frames, three cross-origin ad-like frames, and one same-origin content frame. The cross-origin frames are OOPIF targets. Each column uses a fresh browser profile. The recorded comparison uses 5 runs per column, reports the median and p90, and uses these builds:
+
+- `jk-nav before`: `5def1d05f4187f211218e4cee8b2c7a42be5e726`;
+- `jk-nav after`: `f5a568b75a92e07fb1538200a79370e2760b861a`.
+
+| Metric | no extension | jk-nav before | jk-nav after |
+| --- | --- | --- | --- |
+| DOMContentLoaded, ms | 17.4 (28.8) | 19.9 (23.5) | 19.9 (20.8) |
+| load event, ms | 66.6 (77.5) | 68.6 (72.6) | 69.6 (76.3) |
+| top-frame renderer script time until load+500 ms, ms | 0.3 (0.4) | 1.5 (2.2) | 2.7 (2.9) |
+| top-frame main-thread task time until load+500 ms, ms | 73.1 (84.6) | 72.6 (76.1) | 74.3 (82.7) |
+| first j → first scroll event, ms | n/a (n/a) | 23.8 (25.9) | 21.8 (22.8) |
+| second j → first scroll event, ms | n/a (n/a) | 2.8 (3.4) | 2.6 (3.5) |
+| f → first hint node, ms | n/a (n/a) | 7.1 (9.4) | 7.2 (11.4) |
+| OOPIF target 1 ScriptDuration, ms | 0.0 (0.0) | 0.0 (0.0) | 0.0 (0.0) |
+| OOPIF target 1 task time, ms | 1.7 (11.7) | 1.9 (14.9) | 2.0 (2.2) |
+| OOPIF target 2 ScriptDuration, ms | 0.0 (0.0) | 0.0 (0.0) | 0.0 (0.0) |
+| OOPIF target 2 task time, ms | 1.8 (12.2) | 2.2 (15.6) | 2.2 (2.5) |
+| OOPIF target 3 ScriptDuration, ms | 0.0 (0.0) | 0.0 (0.0) | 0.0 (0.0) |
+| OOPIF target 3 task time, ms | 2.2 (12.4) | 2.5 (16.0) | 2.4 (2.7) |
+
+The after build changes OOPIF task medians by +0.1, +0.0, and −0.1 ms per cross-origin frame for targets 1–3; top-frame script/task deltas are +1.2/+1.7 ms, or +0.3/+0.4 ms per each of 4 same-origin frames. `contentScriptReady=true` for all recorded after-build OOPIF samples, while `ScriptDuration` reads 0.0 in every column. The top-frame renderer script time rises from 1.5 ms before to 2.7 ms after.
