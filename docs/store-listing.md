@@ -1,7 +1,9 @@
 # Store listing
 
 Text and answers for the Chrome Web Store and addons.mozilla.org (AMO) listings
-of `jk-nav`. Keep this file and the manifest in `wxt.config.ts` in step.
+of `jk-nav`. Name and Summary are copies of `name` and `description` in
+`wxt.config.ts`. Chrome reads them from the manifest; AMO takes them typed. A
+change to either field is made in both places in one commit.
 
 ## Name
 
@@ -17,20 +19,20 @@ JK Vim-Style Page/Tab Navigation (jk-nav) adds Vim-style keyboard navigation to 
 
 KEYS
 
-- j / k: scroll down / up by one step (200 px). Hold the key to keep scrolling; release to stop.
+- j / k: scroll down / up by one step. Hold the key to keep scrolling; release to stop.
 - gg / G: go to the top / bottom of the page.
 - H / L: go back / forward in history.
-- f: show a two-letter hint beside every visible link, button and form field. Type the hint to activate it. Esc leaves hint mode.
-- Shift+J / Shift+K: switch to the tab on the left / right. Wraps at both ends, skips hidden tabs and tabs in collapsed tab groups, never leaves the window.
+- f: show a two-character hint beside up to 900 visible links, buttons and form fields. Type the hint to activate it. Esc leaves hint mode.
+- Shift+J / Shift+K: switch to the tab on the left / right. Wraps at both ends, skips hidden tabs and, in Chrome and Firefox 139 or newer, tabs in collapsed tab groups. Stays in the current window.
 
 HIGHLIGHTS
 
-- Added Tab switching with Shift+J / Shift+K: wraps at both ends of the tab strip and skips collapsed tab groups.
+- Added Tab switching with Shift+J / Shift+K alongside the page keys.
 - Keys work in every keyboard layout. They are matched by physical key position, so Russian, German or any other layout behaves like QWERTY, and Caps Lock changes nothing.
-- Keys never fire while you type: text fields, text areas, drop-downs, editable content and IME composition are left alone. Buttons, checkboxes and sliders do not block the keys.
-- Smooth scrolling: a tap of j / k glides one step; holding the key keeps scrolling and stops the moment you release it.
+- Typing stays yours: in text fields, text areas, drop-downs, editable content and during IME composition, the keys type text as usual, also inside web components. After you click a button, checkbox or slider, the keys keep working.
+- Link hints that behave: f does nothing on a page with no targets, a wrong first key just closes the hints, and very large pages no longer break hint mode.
+- Smooth scrolling: every j / k step is animated, and holding the key scrolls continuously.
 - Shortcuts with Ctrl, Alt or Meta pass through, so Ctrl+F still opens the find bar.
-- One extension for Chrome and Firefox.
 
 PRIVACY
 
@@ -38,18 +40,18 @@ jk-nav collects no data, makes no network requests and runs no remote code. Its 
 
 KNOWN LIMITATIONS
 
-- Browser pages (chrome://, about:, the extension stores, built-in PDF viewers) do not allow extensions, so no key works there.
+- Browser pages (chrome://, about:, the extension stores, built-in PDF viewers) do not allow extensions, so no key works there. A tab switch can still land on one; leave it with the browser's own shortcut.
 - Sites with their own j / k shortcuts (Gmail, GitHub, X) conflict with jk-nav while you are not typing.
 
 ORIGIN
 
-jk-nav is a fork of "Vim-Style Page Navigation" by Johnny Matthews (https://github.com/johnnymatthews/vim-style-page-navigation), published on AMO as "Simple Vim Scrolling". The fork exists to ship one Manifest V3 package for both Chrome and Firefox, add tab switching and make the keys work in every keyboard layout; these changes were offered upstream as a pull request and are waiting for an answer there. The page keys of the original are kept as they were.
+jk-nav is a fork of "Vim-Style Page Navigation" by Johnny Matthews (https://github.com/johnnymatthews/vim-style-page-navigation), published on AMO as "Simple Vim Scrolling". The fork adds tab switching, makes the keys work in every keyboard layout, and fixes scrolling, Ctrl+F and typing detection; the same changes are proposed upstream in https://github.com/johnnymatthews/vim-style-page-navigation/pull/1. Every key of the original keeps its meaning.
 
 Source code: https://github.com/Seigiard/jk-nav (MIT).
 
 ## Category
 
-Chrome: Productivity > Tools. AMO: Other, or Tabs.
+Chrome: Productivity > Tools. AMO: Tabs.
 
 ## Chrome Web Store: privacy tab
 
@@ -68,18 +70,20 @@ Chrome: Productivity > Tools. AMO: Other, or Tabs.
 
 ## AMO: submission answers
 
-- **Source code:** upload `.output/jk-nav-<version>-sources.zip`, because the
-  package is bundled and minified by Vite. Build instructions for the reviewer:
-  `npm ci && npm run zip:firefox` with Node 26; the package appears in `.output/`.
+- **Source code:** `npm run zip:firefox` writes both
+  `.output/jk-nav-<version>-firefox.zip` and `.output/jk-nav-<version>-sources.zip`;
+  upload the sources zip, because the package is bundled and minified by Vite.
+  Reviewer build instructions: `npm ci && npm run zip:firefox` on the Node
+  version pinned in `.github/workflows/ci.yml`; the result to compare is
+  `.output/jk-nav-<version>-firefox.zip`.
 - **Data collection:** none (`data_collection_permissions.required: ["none"]`
   in the manifest).
 - **Licence:** MIT.
-- **Firefox minimum version:** 109 (Manifest V3); the `tabGroups` skip needs
-  139, older versions switch into collapsed groups.
 
 ## Assets
 
 - Icon: `public/icons/128x128.png`.
-- Screenshots (1280×800): `docs/store/screenshot-1-keys.png` (a page with the
-  key overlay) and `docs/store/screenshot-2-link-hints.png`, built by
-  `docs/store/screenshots.ts`, then compressed by hand.
+- Screenshots (1280×800): `docs/store/screenshot-1-keys.png` (key overlay) and
+  `docs/store/screenshot-2-link-hints.png`. Regenerate with
+  `npm run build && npx tsx docs/store/screenshots.ts`, then compress each PNG
+  with `magick <file> -colors 256 <file>` to under 150 KB.
