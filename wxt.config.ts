@@ -3,9 +3,9 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
   manifestVersion: 3,
   manifest: ({ browser }) => ({
-    name: 'Vim-Style Page Navigation',
+    name: 'JK Vim-Style Page/Tab Navigation',
     version: '1.0.0',
-    description: 'Navigate pages using vim-style keyboard shortcuts (j/k for scrolling, gg/G for top/bottom, f for link hints)',
+    description: 'Vim keys on every page: j/k scroll, gg/G, f link hints, H/L history, Shift+J/K switch tabs. Works in any keyboard layout.',
     permissions: ['tabGroups'],
     icons: {
       16: 'icons/16x16.png',
@@ -23,6 +23,6 @@ export default defineConfig({
     },
   }),
   zip: {
-    excludeSources: ['test-results/**', 'playwright-report/**'],
+    excludeSources: ['test-results/**', 'playwright-report/**', 'docs/store/*.png'],
   },
 });
