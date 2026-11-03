@@ -12,7 +12,10 @@ import { createTabSwitchMessage } from '../utils/tab-switch';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
+  runAt: 'document_start',
   main() {
+    document.documentElement?.setAttribute('data-jk-nav', 'ready');
+
     const NON_TYPING_INPUT_TYPES = new Set([
       'checkbox',
       'radio',
@@ -45,8 +48,7 @@ export default defineContentScript({
     let visibleElements: VisibleElement[] = [];
     let scrollAnimationFrame: number | null = null;
     let previousScrollTimestamp: number | null = null;
-
-    createHintStyles();
+    let hintStylesCreated = false;
 
     function startContinuousScroll(direction: 1 | -1): void {
       stopContinuousScroll();
@@ -65,14 +67,16 @@ export default defineContentScript({
 
     function scheduleScrollAnimation(): void {
       if (scrollAnimationFrame === null) {
-        previousScrollTimestamp = null;
+        previousScrollTimestamp = performance.now();
         scrollAnimationFrame = requestAnimationFrame(animateScroll);
       }
     }
 
     function animateScroll(timestamp: number): void {
       scrollAnimationFrame = null;
-      const elapsedMs = previousScrollTimestamp === null ? 0 : timestamp - previousScrollTimestamp;
+      const elapsedMs = previousScrollTimestamp === null
+        ? 0
+        : Math.max(timestamp - previousScrollTimestamp, 1);
       previousScrollTimestamp = timestamp;
       const distance = scrollMotion.advance(elapsedMs);
 
@@ -198,7 +202,17 @@ export default defineContentScript({
           background-color: #90ee90;
         }
       `;
-      document.head.appendChild(style);
+      const styleParent = document.head ?? document.documentElement;
+      styleParent?.appendChild(style);
+    }
+
+    function ensureHintStyles(): void {
+      if (hintStylesCreated) {
+        return;
+      }
+
+      createHintStyles();
+      hintStylesCreated = document.getElementById('vimnav-styles') !== null;
     }
 
     function collectVisibleElements(): VisibleElement[] {
@@ -246,6 +260,7 @@ export default defineContentScript({
     }
 
     function showLinkHints(codes: string[]): void {
+      ensureHintStyles();
       clearLinkHints();
 
       visibleElements.forEach((item, index) => {
