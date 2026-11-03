@@ -62,6 +62,12 @@ npm run zip:firefox    # Firefox store package
 Before a release, check both packages by hand in Chrome and Firefox:
 [docs/release-check.md](docs/release-check.md).
 
+## Performance
+
+`docs/bench/` measures page-load overhead and key latency against another
+extension in Chromium; `docs/bench/README.md` has the method and the last
+result against Vimium C.
+
 ## Permissions
 
 `jk-nav` requests the `tabGroups` permission. It uses this permission to detect
