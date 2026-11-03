@@ -1,0 +1,191 @@
+{
+  "iterations": 10,
+  "LINKS": 3000,
+  "PARAGRAPHS": 400,
+  "results": {
+    "no extension": [
+      {
+        "domContentLoaded": 15.5,
+        "load": 20.400000035762787,
+        "scriptDuration": 0.313,
+        "taskDuration": 54.186,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.800000011920929,
+        "load": 16.19999998807907,
+        "scriptDuration": 0.312,
+        "taskDuration": 66.556,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 12.300000011920929,
+        "load": 16.80000001192093,
+        "scriptDuration": 0.305,
+        "taskDuration": 62.988,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.900000035762787,
+        "load": 16.400000035762787,
+        "scriptDuration": 0.292,
+        "taskDuration": 61.992,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.5,
+        "load": 16,
+        "scriptDuration": 0.25999999999999995,
+        "taskDuration": 62.083,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.399999976158142,
+        "load": 16,
+        "scriptDuration": 0.268,
+        "taskDuration": 64.63499999999999,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.700000047683716,
+        "load": 16.30000001192093,
+        "scriptDuration": 0.27099999999999996,
+        "taskDuration": 60.071,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.699999988079071,
+        "load": 16.30000001192093,
+        "scriptDuration": 0.277,
+        "taskDuration": 56.708,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.800000011920929,
+        "load": 16.19999998807907,
+        "scriptDuration": 0.258,
+        "taskDuration": 55.995999999999995,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.800000011920929,
+        "load": 16,
+        "scriptDuration": 0.294,
+        "taskDuration": 62.732,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      }
+    ],
+    "jk-nav": [
+      {
+        "domContentLoaded": 11.800000011920929,
+        "load": 52.89999997615814,
+        "scriptDuration": 1.073,
+        "taskDuration": 57.241,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.600000023841858,
+        "load": 57.40000003576279,
+        "scriptDuration": 1.085,
+        "taskDuration": 58.955,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 14.300000011920929,
+        "load": 59.90000003576279,
+        "scriptDuration": 1.217,
+        "taskDuration": 63.596,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.5,
+        "load": 54.200000047683716,
+        "scriptDuration": 1.085,
+        "taskDuration": 58.230999999999995,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 13.800000011920929,
+        "load": 55.80000001192093,
+        "scriptDuration": 1.073,
+        "taskDuration": 59.371,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.699999988079071,
+        "load": 61.39999997615814,
+        "scriptDuration": 1.211,
+        "taskDuration": 63.976000000000006,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 12.200000047683716,
+        "load": 59.40000003576279,
+        "scriptDuration": 1.0859999999999999,
+        "taskDuration": 64.968,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.299999952316284,
+        "load": 54.69999998807907,
+        "scriptDuration": 1.066,
+        "taskDuration": 56.768,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 12.799999952316284,
+        "load": 54.89999997615814,
+        "scriptDuration": 1.111,
+        "taskDuration": 61.666,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      },
+      {
+        "domContentLoaded": 11.599999964237213,
+        "load": 55.69999998807907,
+        "scriptDuration": 1.1,
+        "taskDuration": 57.033,
+        "jLatency": null,
+        "jWarmLatency": null,
+        "fLatency": null
+      }
+    ]
+  }
+}
