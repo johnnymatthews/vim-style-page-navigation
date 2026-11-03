@@ -45,11 +45,13 @@ export default defineContentScript({
 
     const keyInterpreter = createKeyInterpreter();
     const scrollMotion = createScrollMotion();
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let linkHints: LinkHint[] = [];
     let visibleElements: VisibleElement[] = [];
     let scrollAnimationFrame: number | null = null;
     let previousScrollTimestamp: number | null = null;
     let hintStylesCreated = false;
+    let hintContainer: HTMLDivElement | null = null;
     const NOMINAL_FRAME_ELAPSED_MS = 8;
 
     function startContinuousScroll(direction: 1 | -1): void {
@@ -98,7 +100,7 @@ export default defineContentScript({
     }
 
     function scrollStep(direction: 1 | -1): void {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (reducedMotionQuery.matches) {
         stopContinuousScroll();
         window.scrollBy({ top: SCROLL_STEP_PX * direction, behavior: 'instant' });
         return;
@@ -187,7 +189,7 @@ export default defineContentScript({
       style.id = 'vimnav-styles';
       style.textContent = `
         .vimnav-link-hint {
-          position: fixed;
+          position: absolute;
           background-color: #ffff00;
           color: #000000;
           border: 1px solid #000000;
@@ -222,35 +224,29 @@ export default defineContentScript({
     }
 
     function collectVisibleElements(): VisibleElement[] {
-      const elements: VisibleElement[] = [];
-      const links = document.querySelectorAll('a');
-      const buttons = document.querySelectorAll<HTMLElement>(
-        'button, input[type="button"], input[type="submit"], [role="button"]',
-      );
-      const inputs = document.querySelectorAll<HTMLElement>(
-        'input:not([type="button"]):not([type="submit"]), textarea, select',
+      const links: VisibleElement[] = [];
+      const buttons: VisibleElement[] = [];
+      const inputs: VisibleElement[] = [];
+      const candidates = document.querySelectorAll<HTMLElement>(
+        'a, button, input, textarea, select, [role="button"]',
       );
 
-      links.forEach((element) => {
+      candidates.forEach((element) => {
         const rect = element.getBoundingClientRect();
-        if (isElementVisible(element, rect)) {
-          elements.push({ element, type: 'link', rect });
+        if (!isElementVisible(element, rect)) {
+          return;
         }
-      });
-      buttons.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        if (isElementVisible(element, rect)) {
-          elements.push({ element, type: 'button', rect });
-        }
-      });
-      inputs.forEach((element) => {
-        const rect = element.getBoundingClientRect();
-        if (isElementVisible(element, rect)) {
-          elements.push({ element, type: 'input', rect });
+
+        if (element.matches('a')) {
+          links.push({ element, type: 'link', rect });
+        } else if (element.matches('button, input[type="button"], input[type="submit"], [role="button"]')) {
+          buttons.push({ element, type: 'button', rect });
+        } else {
+          inputs.push({ element, type: 'input', rect });
         }
       });
 
-      return elements;
+      return [...links, ...buttons, ...inputs];
     }
 
     function isElementVisible(element: HTMLElement, rect: DOMRect): boolean {
@@ -265,17 +261,25 @@ export default defineContentScript({
         return false;
       }
 
+      if (typeof element.checkVisibility === 'function') {
+        return element.checkVisibility({ visibilityProperty: true });
+      }
+
       const computedStyle = getComputedStyle(element);
-      return (
-        computedStyle.display !== 'none' &&
+      return computedStyle.display !== 'none' &&
         computedStyle.visibility !== 'hidden' &&
-        element.offsetParent !== null
-      );
+        element.offsetParent !== null;
     }
 
     function showLinkHints(codes: string[]): void {
       ensureHintStyles();
       clearLinkHints();
+      hintContainer = document.createElement('div');
+      hintContainer.style.position = 'fixed';
+      hintContainer.style.inset = '0';
+      hintContainer.style.contain = 'layout';
+      hintContainer.style.pointerEvents = 'none';
+      hintContainer.style.zIndex = '2147483647';
       const fragment = document.createDocumentFragment();
 
       visibleElements.forEach((item, index) => {
@@ -284,7 +288,8 @@ export default defineContentScript({
           createLinkHint(item.element, code, item.type, item.rect, fragment);
         }
       });
-      document.body.appendChild(fragment);
+      hintContainer.appendChild(fragment);
+      document.body.appendChild(hintContainer);
     }
 
     function createLinkHint(
@@ -342,9 +347,8 @@ export default defineContentScript({
     }
 
     function clearLinkHints(): void {
-      linkHints.forEach((hint) => {
-        hint.element.remove();
-      });
+      hintContainer?.remove();
+      hintContainer = null;
       linkHints = [];
     }
 

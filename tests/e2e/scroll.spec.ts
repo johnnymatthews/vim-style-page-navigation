@@ -351,6 +351,59 @@ test('reduced motion makes one KeyJ tap instant', async () => {
   }
 });
 
+test('switching reduced motion on makes the next KeyJ tap instant', async () => {
+  // #given
+  const { context, page } = await openExtensionPage();
+
+  try {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await installScrollTrace(page);
+
+    // #when
+    await page.keyboard.press('j');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(200);
+    await page.waitForTimeout(100);
+    const scrollPositions = await readScrollTrace(page);
+    const finalPosition = await page.evaluate(() => window.scrollY);
+
+    // #then
+    expect({ uniquePositions: [...new Set(scrollPositions)], finalPosition }).toEqual({
+      uniquePositions: [200],
+      finalPosition: 200,
+    });
+  } finally {
+    await context.close();
+  }
+});
+
+test('switching reduced motion off makes the next KeyJ tap animate', async () => {
+  // #given
+  const { context, page } = await openExtensionPage({ reducedMotion: 'reduce' });
+
+  try {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await installScrollTrace(page);
+
+    // #when
+    await page.keyboard.press('j');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(200);
+    await page.waitForTimeout(100);
+    const scrollPositions = await readScrollTrace(page);
+    const finalPosition = await page.evaluate(() => window.scrollY);
+
+    // #then
+    expect({
+      hasIntermediatePosition: scrollPositions.some((position) => position > 0 && position < 200),
+      finalPosition,
+    }).toEqual({
+      hasIntermediatePosition: true,
+      finalPosition: 200,
+    });
+  } finally {
+    await context.close();
+  }
+});
+
 test('a KeyJ tap settles exactly on a page with CSS smooth scrolling', async () => {
   // #given
   const { context, page } = await openExtensionPage();
