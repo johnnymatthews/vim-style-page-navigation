@@ -3,6 +3,7 @@ import {
   selectTabSwitchTarget,
   type TabDirection,
 } from '../utils/tab-switch';
+import { isFrameScrollMessage } from '../utils/frame-scroll';
 
 async function activateTabInDirection(direction: TabDirection, windowId: number): Promise<void> {
   const tabs = await browser.tabs.query({ windowId });
@@ -29,6 +30,15 @@ async function activateTabInDirection(direction: TabDirection, windowId: number)
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener((message: unknown, sender) => {
+    if (isFrameScrollMessage(message)) {
+      const tabId = sender.tab?.id;
+      if (tabId === undefined || sender.frameId === 0) {
+        return;
+      }
+
+      return browser.tabs.sendMessage(tabId, message, { frameId: 0 }).catch(() => undefined);
+    }
+
     if (!isTabSwitchMessage(message)) {
       return;
     }

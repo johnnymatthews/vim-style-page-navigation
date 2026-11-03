@@ -8,14 +8,20 @@ import {
   createScrollMotion,
   SCROLL_STEP_PX,
 } from '../utils/scroll-motion';
+import {
+  createFrameScrollMessage,
+  isFrameScrollMessage,
+  type FrameScrollEffect,
+} from '../utils/frame-scroll';
 import { createTabSwitchMessage } from '../utils/tab-switch';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
   runAt: 'document_start',
+  allFrames: true,
+  matchAboutBlank: true,
+  matchOriginAsFallback: { chrome: true, firefox: true },
   main() {
-    document.documentElement?.setAttribute('data-jk-nav', 'ready');
-
     const NON_TYPING_INPUT_TYPES = new Set([
       'checkbox',
       'radio',
@@ -52,15 +58,29 @@ export default defineContentScript({
     let previousScrollTimestamp: number | null = null;
     let hintStylesCreated = false;
     let hintContainer: HTMLDivElement | null = null;
+    let continuousScrollForwarded = false;
+    let topForwardedContinuousScrollRunning = false;
+    let frameScrollMessages = Promise.resolve();
     const NOMINAL_FRAME_ELAPSED_MS = 8;
 
     function startContinuousScroll(direction: 1 | -1): void {
+      stopForwardedContinuousScroll();
       stopContinuousScroll();
       scrollMotion.startContinuous(direction);
       scheduleScrollAnimation();
     }
 
+    function stopForwardedContinuousScroll(): void {
+      if (!continuousScrollForwarded) {
+        return;
+      }
+
+      continuousScrollForwarded = false;
+      sendFrameScroll({ kind: 'stopContinuousScroll' });
+    }
+
     function stopContinuousScroll(): void {
+      topForwardedContinuousScrollRunning = false;
       scrollMotion.stopContinuous();
       if (scrollAnimationFrame !== null) {
         cancelAnimationFrame(scrollAnimationFrame);
@@ -139,19 +159,32 @@ export default defineContentScript({
     function applyEffect(effect: KeyEffect, event?: KeyboardEvent): void {
       switch (effect.kind) {
         case 'scrollStep':
+          if (maybeForwardScroll(effect, event)) {
+            return;
+          }
           scrollStep(effect.direction);
           return;
         case 'startContinuousScroll':
+          if (maybeForwardScroll(effect, event)) {
+            return;
+          }
           startContinuousScroll(effect.direction);
           return;
         case 'stopContinuousScroll':
           stopContinuousScroll();
+          stopForwardedContinuousScroll();
           return;
         case 'scrollToTop':
+          if (maybeForwardScroll(effect, event)) {
+            return;
+          }
           stopContinuousScroll();
           window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         case 'scrollToBottom':
+          if (maybeForwardScroll(effect, event)) {
+            return;
+          }
           stopContinuousScroll();
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
           return;
@@ -182,6 +215,76 @@ export default defineContentScript({
           exitLinkHintMode();
           return;
       }
+    }
+
+    function maybeForwardScroll(
+      effect: FrameScrollEffect,
+      event?: KeyboardEvent,
+    ): boolean {
+      const direction = scrollDirection(effect);
+      if (window === window.top || canScrollFrame(direction)) {
+        return false;
+      }
+
+      if (event?.isTrusted !== true) {
+        return true;
+      }
+
+      if (effect.kind === 'startContinuousScroll') {
+        stopContinuousScroll();
+        stopForwardedContinuousScroll();
+      }
+      sendFrameScroll(effect);
+      if (effect.kind === 'startContinuousScroll') {
+        continuousScrollForwarded = true;
+      }
+      return true;
+    }
+
+    function sendFrameScroll(effect: FrameScrollEffect): void {
+      const message = createFrameScrollMessage(effect);
+      frameScrollMessages = frameScrollMessages
+        .then(() => browser.runtime.sendMessage(message))
+        .catch(() => undefined);
+    }
+
+    function scrollDirection(effect: FrameScrollEffect): 1 | -1 {
+      switch (effect.kind) {
+        case 'scrollStep':
+        case 'startContinuousScroll':
+          return effect.direction;
+        case 'scrollToTop':
+          return -1;
+        case 'scrollToBottom':
+          return 1;
+        case 'stopContinuousScroll':
+          return 1;
+      }
+    }
+
+    function canScrollFrame(direction: 1 | -1): boolean {
+      const scrollingElement = document.scrollingElement;
+      if (scrollingElement === null) {
+        return false;
+      }
+
+      const htmlOverflowY = getComputedStyle(document.documentElement).overflowY;
+      if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
+        return false;
+      }
+
+      const body = document.body;
+      const bodyOverflowY = body === null ? null : getComputedStyle(body).overflowY;
+      if (
+        (bodyOverflowY === 'hidden' || bodyOverflowY === 'clip') &&
+        (htmlOverflowY === 'visible' || scrollingElement === body)
+      ) {
+        return false;
+      }
+
+      return direction === 1
+        ? scrollingElement.scrollTop + scrollingElement.clientHeight < scrollingElement.scrollHeight - 1
+        : scrollingElement.scrollTop > 0;
     }
 
     function createHintStyles(): void {
@@ -372,16 +475,54 @@ export default defineContentScript({
       return false;
     }
 
+    function stopTopForwardedContinuousScroll(): void {
+      if (topForwardedContinuousScrollRunning) {
+        stopContinuousScroll();
+      }
+    }
+
+    function applyForwardedEffect(effect: FrameScrollEffect): void {
+      if (effect.kind === 'stopContinuousScroll') {
+        topForwardedContinuousScrollRunning = false;
+      }
+      applyEffect(effect);
+      if (effect.kind === 'startContinuousScroll') {
+        topForwardedContinuousScrollRunning = true;
+      }
+    }
+
     document.addEventListener('keydown', (event) => {
       applyResult(keyInterpreter.press(toKeyPress(event)), event);
     });
 
     document.addEventListener('keyup', (event) => {
       applyResult(keyInterpreter.release(event.code));
+      if (window === window.top && (event.code === 'KeyJ' || event.code === 'KeyK')) {
+        stopTopForwardedContinuousScroll();
+      }
     });
 
     window.addEventListener('blur', () => {
       applyResult(keyInterpreter.blur());
+      if (window === window.top) {
+        stopTopForwardedContinuousScroll();
+      }
     });
+
+    if (window === window.top) {
+      browser.runtime.onMessage.addListener((message: unknown) => {
+        if (isFrameScrollMessage(message)) {
+          applyForwardedEffect(message.effect);
+        }
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          stopTopForwardedContinuousScroll();
+        }
+      });
+    }
+
+    document.documentElement?.setAttribute('data-jk-nav', 'ready');
   },
 });

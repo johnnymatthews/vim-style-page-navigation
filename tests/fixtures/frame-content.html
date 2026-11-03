@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Frame content fixture</title>
+    <style>
+      body { margin: 0; }
+      body[data-mode="locked"] { min-height: 2400px; overflow-y: hidden; }
+      body[data-mode="tall"] { min-height: 2400px; }
+      body[data-mode="overlap"] { min-height: 10000px; }
+    </style>
+  </head>
+  <body>
+    <button id="focus-target" type="button">Focus embedded content</button>
+    <a id="frame-link" href="#destination">Embedded destination</a>
+    <main id="editor">start</main>
+    <script>
+      const mode = new URLSearchParams(location.search).get('mode') ?? 'tall';
+      document.body.dataset.mode = mode;
+      if (mode === 'editor') {
+        document.body.contentEditable = 'true';
+      }
+    </script>
+  </body>
+</html>

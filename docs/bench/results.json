@@ -549,5 +549,549 @@
         "fLatency": 15
       }
     ]
+  },
+  "multiFrame": {
+    "iterations": 5,
+    "fixture": {
+      "sameOriginChildFrames": 4,
+      "crossOriginChildFrames": 3,
+      "outOfProcessFrameTargets": 3
+    },
+    "beforeBuild": "5def1d05f4187f211218e4cee8b2c7a42be5e726",
+    "afterBuild": "f5a568b75a92e07fb1538200a79370e2760b861a",
+    "oopifScriptMetric": "Chrome Performance.ScriptDuration excludes extension isolated-world content scripts",
+    "results": {
+      "no extension": [
+        {
+          "domContentLoaded": 28.80000001192093,
+          "load": 77.5,
+          "scriptDuration": 0.373,
+          "taskDuration": 84.6,
+          "jLatency": null,
+          "jWarmLatency": null,
+          "fLatency": null,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "CB6991B7CC7BF1BFFAE3F9F3A7537B56",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 11.669
+            },
+            {
+              "targetId": "2399F36E6270B5351F79EE1D40827088",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 12.224
+            },
+            {
+              "targetId": "EF100DCC2C24411CA6FD034D02EFECAE",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 12.414
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 16.69999998807907,
+          "load": 61.59999996423721,
+          "scriptDuration": 0.27799999999999997,
+          "taskDuration": 68.643,
+          "jLatency": null,
+          "jWarmLatency": null,
+          "fLatency": null,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "353C37988399405D6DB8BE0C2663C280",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.089
+            },
+            {
+              "targetId": "02A94E66F18E8331F533CC80E6DD6BB8",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.737
+            },
+            {
+              "targetId": "9E0D3C12F17D44E86F860704FE019129",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.163
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 17.900000035762787,
+          "load": 66.60000002384186,
+          "scriptDuration": 0.317,
+          "taskDuration": 73.127,
+          "jLatency": null,
+          "jWarmLatency": null,
+          "fLatency": null,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "C12EEB66FA6FF99513F6763891B920EB",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.11
+            },
+            {
+              "targetId": "E18E7754095C94DFCDD1F51937FC4365",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.716
+            },
+            {
+              "targetId": "B851CABA523A734436271BD14EA36B70",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.1229999999999998
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 17.100000023841858,
+          "load": 65.5,
+          "scriptDuration": 0.318,
+          "taskDuration": 72.432,
+          "jLatency": null,
+          "jWarmLatency": null,
+          "fLatency": null,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "152251A65F147CC45E0698DE54B75750",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.618
+            },
+            {
+              "targetId": "884E255AC73BCBB5FC0C981B0E264794",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 3.247
+            },
+            {
+              "targetId": "B8B4529B3C19AC2DBAF1A3358838193D",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 3.439
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 17.399999976158142,
+          "load": 68.5,
+          "scriptDuration": 0.287,
+          "taskDuration": 73.66399999999999,
+          "jLatency": null,
+          "jWarmLatency": null,
+          "fLatency": null,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "EAA937758F57972F53BF72A877EDF153",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.6869999999999998
+            },
+            {
+              "targetId": "32913E025181D3E1305017FC58D8828B",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.787
+            },
+            {
+              "targetId": "DA5CCA66481D338DC4496FA81B2A1C64",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.052
+            }
+          ]
+        }
+      ],
+      "jk-nav before": [
+        {
+          "domContentLoaded": 23.5,
+          "load": 72.60000002384186,
+          "scriptDuration": 2.19,
+          "taskDuration": 76.074,
+          "jLatency": 23.5,
+          "jWarmLatency": 2.800000011920929,
+          "fLatency": 8,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "BCDA0E6298D9055759C5576588890BDF",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 14.917
+            },
+            {
+              "targetId": "0502AD1787175C24F6B0725F834225F0",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 15.609
+            },
+            {
+              "targetId": "448FC84D98AB1E55C8F1848792A3AB8D",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 15.983
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 19.799999952316284,
+          "load": 67,
+          "scriptDuration": 1.57,
+          "taskDuration": 73.75,
+          "jLatency": 25.899999976158142,
+          "jWarmLatency": 2.600000023841858,
+          "fLatency": 7.100000023841858,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "DEFB95B6724D02803DCDC2E9792DF19E",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.607
+            },
+            {
+              "targetId": "4D00821AC1427310C1AC57B233B232FF",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.1029999999999998
+            },
+            {
+              "targetId": "72EA0C2ACC0D61FE0357A270D3049F9D",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.4589999999999996
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 20.19999998807907,
+          "load": 68.59999996423721,
+          "scriptDuration": 1.4649999999999999,
+          "taskDuration": 71.55,
+          "jLatency": 19.400000035762787,
+          "jWarmLatency": 2.799999952316284,
+          "fLatency": 9.400000035762787,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "A06A1DBFBC0845A174FA96318AA40E9F",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.903
+            },
+            {
+              "targetId": "6153A9061363BE3AE722920390B02919",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 3.0500000000000003
+            },
+            {
+              "targetId": "63B17A9854ECCB7D87A2EDED967A9684",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 3.136
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 19.900000035762787,
+          "load": 66.30000001192093,
+          "scriptDuration": 1.388,
+          "taskDuration": 69.76400000000001,
+          "jLatency": 25.200000047683716,
+          "jWarmLatency": 3.399999976158142,
+          "fLatency": 7.100000023841858,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "E168A8492DFA3E51FBC38FC9C3316969",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 0.9349999999999999
+            },
+            {
+              "targetId": "AA20FB633271DE8C92EEBE6553D3DEB6",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.278
+            },
+            {
+              "targetId": "F86A92523B136959ADAFA58ACB659E7A",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.564
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 18,
+          "load": 68.59999996423721,
+          "scriptDuration": 1.39,
+          "taskDuration": 72.58000000000001,
+          "jLatency": 23.80000001192093,
+          "jWarmLatency": 3,
+          "fLatency": 5.199999988079071,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "D2F9A249433A1F7B59FDED944A84ED01",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 1.86
+            },
+            {
+              "targetId": "7E7352C10D481EAE4793F49DDB4170A2",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.185
+            },
+            {
+              "targetId": "4760C21FF349A675846EAB1E4C03A671",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": false,
+              "scriptDuration": 0,
+              "taskDuration": 2.303
+            }
+          ]
+        }
+      ],
+      "jk-nav after": [
+        {
+          "domContentLoaded": 20.80000001192093,
+          "load": 76.30000001192093,
+          "scriptDuration": 2.711,
+          "taskDuration": 82.688,
+          "jLatency": 21.80000001192093,
+          "jWarmLatency": 2.5,
+          "fLatency": 7.5,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "C4E2060901725C6992ECA4C7F9E58190",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 1.363
+            },
+            {
+              "targetId": "C47EE55C7953AAA97772AA58BC75F655",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 1.951
+            },
+            {
+              "targetId": "9C901BE6C40F4B6CB56EE2CC2E601BFF",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.083
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 19.899999976158142,
+          "load": 70,
+          "scriptDuration": 2.56,
+          "taskDuration": 73.657,
+          "jLatency": 22.100000023841858,
+          "jWarmLatency": 2.599999964237213,
+          "fLatency": 7.100000023841858,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "E004B8254F67E7F2315489E13D005DC7",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.142
+            },
+            {
+              "targetId": "03086945B786D0031B748607BEF64125",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.4290000000000003
+            },
+            {
+              "targetId": "01564200CB080FFA26B52CEE5D38053E",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.6
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 19.600000023841858,
+          "load": 66.5,
+          "scriptDuration": 2.522,
+          "taskDuration": 71.999,
+          "jLatency": 21.80000001192093,
+          "jWarmLatency": 2.300000011920929,
+          "fLatency": 7.199999988079071,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "326B0044FE767B827A0108F7901E2294",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 1.9729999999999999
+            },
+            {
+              "targetId": "33235BFA1AF742AAC3F9784B0D3BC0FF",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.179
+            },
+            {
+              "targetId": "432245856FD17DDB08FBE81CE12AD966",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.415
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 20.399999976158142,
+          "load": 68.79999995231628,
+          "scriptDuration": 2.713,
+          "taskDuration": 74.32,
+          "jLatency": 22.80000001192093,
+          "jWarmLatency": 3.5,
+          "fLatency": 5.700000047683716,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "FC898D867FFE907C5D12BF7CE8B3EE65",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.1719999999999997
+            },
+            {
+              "targetId": "647BA8687CCAC21612D02BC75C2AA1A2",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.505
+            },
+            {
+              "targetId": "E09886CE575C464C6B36F0E49267F77F",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.654
+            }
+          ]
+        },
+        {
+          "domContentLoaded": 19.100000023841858,
+          "load": 69.60000002384186,
+          "scriptDuration": 2.9290000000000003,
+          "taskDuration": 74.64999999999999,
+          "jLatency": 20.099999964237213,
+          "jWarmLatency": 2.800000011920929,
+          "fLatency": 11.400000035762787,
+          "sameOriginFrameCount": 4,
+          "crossOriginFrameCount": 3,
+          "outOfProcessFrameCount": 3,
+          "oopifFrames": [
+            {
+              "targetId": "3165658DD0AF3F327759A3DBFA3CA693",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-1",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 1.9220000000000002
+            },
+            {
+              "targetId": "12EE162A62EA83C536DB6E3C02B7C421",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-0",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.215
+            },
+            {
+              "targetId": "E8E34C8DB74427E3865FAEC9837E3290",
+              "url": "http://localhost:60472/frame.html?kind=ad&slot=cross-2",
+              "contentScriptReady": true,
+              "scriptDuration": 0,
+              "taskDuration": 2.392
+            }
+          ]
+        }
+      ]
+    }
   }
 }
