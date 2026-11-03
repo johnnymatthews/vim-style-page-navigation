@@ -66,6 +66,119 @@ async function readScrollTrace(page: Page): Promise<number[]> {
   return page.evaluate(() => (window as ScrollTraceWindow).scrollPositions ?? []);
 }
 
+async function observeScrollPositionAfterFirstFrame(page: Page, key: ScrollKey): Promise<number> {
+  return page.evaluate((pressedKey) => new Promise<number>((resolve) => {
+    const code = pressedKey === 'j' ? 'KeyJ' : 'KeyK';
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    document.dispatchEvent(new KeyboardEvent('keyup', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    requestAnimationFrame(() => resolve(window.scrollY));
+  }), key);
+}
+
+async function observeScrollPositionAfterKeydown(page: Page, key: ScrollKey): Promise<number> {
+  return page.evaluate((pressedKey) => {
+    const code = pressedKey === 'j' ? 'KeyJ' : 'KeyK';
+    document.dispatchEvent(new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    const positionAfterKeydown = window.scrollY;
+    document.dispatchEvent(new KeyboardEvent('keyup', {
+      bubbles: true,
+      cancelable: true,
+      code,
+      key: pressedKey,
+    }));
+    return positionAfterKeydown;
+  }, key);
+}
+
+async function openFirstFramePage(): Promise<ExtensionPage> {
+  const context = await openExtensionContext();
+  const page = await context.newPage();
+  await page.goto('/tall-page.html');
+  await page.locator('html[data-jk-nav="ready"], #vimnav-styles').waitFor({ state: 'attached' });
+  return { context, page };
+}
+
+test('KeyJ moves down during the first animation frame', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    // #when
+    const positionAfterFirstFrame = await observeScrollPositionAfterFirstFrame(page, 'j');
+
+    // #then
+    expect(positionAfterFirstFrame).toBeGreaterThanOrEqual(1);
+  } finally {
+    await context.close();
+  }
+});
+
+test('KeyK moves up during the first animation frame', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForFunction(() => window.scrollY === 300);
+
+    // #when
+    const positionAfterFirstFrame = await observeScrollPositionAfterFirstFrame(page, 'k');
+
+    // #then
+    expect(positionAfterFirstFrame).toBeLessThanOrEqual(299);
+  } finally {
+    await context.close();
+  }
+});
+
+test('KeyJ moves down before keydown dispatch returns', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    // #when
+    const positionAfterKeydown = await observeScrollPositionAfterKeydown(page, 'j');
+
+    // #then
+    expect(positionAfterKeydown).toBeGreaterThanOrEqual(1);
+  } finally {
+    await context.close();
+  }
+});
+
+test('KeyK moves up before keydown dispatch returns', async () => {
+  // #given
+  const { context, page } = await openFirstFramePage();
+
+  try {
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForFunction(() => window.scrollY === 300);
+
+    // #when
+    const positionAfterKeydown = await observeScrollPositionAfterKeydown(page, 'k');
+
+    // #then
+    expect(positionAfterKeydown).toBeLessThanOrEqual(299);
+  } finally {
+    await context.close();
+  }
+});
+
 test('one KeyJ tap scrolls down exactly one step and then stays still', async () => {
   // #given
   const { context, page } = await openExtensionPage();
