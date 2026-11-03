@@ -22,6 +22,8 @@ It keeps Upstream's page controls and adds keyboard tab switching.
 | `Shift+J` | Switch to the Left tab in the current window. |
 | `Shift+K` | Switch to the Right tab in the current window. |
 
+Keys act in the focused frame, including inside an iframe. At a frame's edge, or when the frame cannot scroll, `j` and `k` scroll the page around it.
+
 The Keys are matched by their physical QWERTY positions. They work in any
 keyboard layout. `Shift` decides the case, so Caps Lock does not change what a
 Key does. Hint codes use physical key positions too.
