@@ -19,9 +19,33 @@ const page = await context.newPage();
 await page.goto(article, { waitUntil: 'networkidle' });
 await page.mouse.click(640, 400);
 
-await page.keyboard.press('j');
-await page.waitForTimeout(600);
-await page.screenshot({ path: path.join(outDir, 'screenshot-1-scroll.png') });
+// A still image cannot show scrolling, so the first screenshot carries the key overlay.
+await page.evaluate(() => {
+  const keys = [
+    ['j / k', 'scroll'],
+    ['gg / G', 'top / bottom'],
+    ['f', 'link hints'],
+    ['H / L', 'back / forward'],
+    ['Shift+J / K', 'left / right tab'],
+  ];
+  const panel = document.createElement('div');
+  panel.style.cssText =
+    'position:fixed;right:40px;bottom:40px;z-index:2147483647;background:#1f2328;color:#fff;' +
+    'padding:24px 28px;border-radius:14px;font:18px/1.5 -apple-system,Helvetica,Arial,sans-serif;' +
+    'box-shadow:0 12px 40px rgba(0,0,0,.35)';
+  panel.innerHTML =
+    '<div style="font-size:22px;font-weight:700;margin-bottom:12px">JK Vim-Style Page/Tab Navigation</div>' +
+    keys
+      .map(
+        ([key, what]) =>
+          '<div style="display:flex;gap:16px;justify-content:space-between">' +
+          `<kbd style="font:600 18px ui-monospace,Menlo,monospace;color:#ffd33d">${key}</kbd><span>${what}</span></div>`,
+      )
+      .join('');
+  document.body.append(panel);
+});
+await page.screenshot({ path: path.join(outDir, 'screenshot-1-keys.png') });
+await page.evaluate(() => document.body.lastElementChild?.remove());
 
 await page.keyboard.press('f');
 await page.waitForTimeout(300);
