@@ -17,9 +17,6 @@ const DEFAULT_PRESS: KeyPress = {
 
 const NO_RESULT: KeyResult = { effects: [], consumed: false };
 
-const ALL_HINT_CODES =
-  'aa ab ac ad ae ah ai al am an ao ap aq ar as at au av aw ax ay az a1 a2 a3 a4 a5 a6 a7 a8 ba bb bc bd be bh bi bl bm bn bo bp bq br bs bt bu bv bw bx by bz b1 b2 b3 b4 b5 b6 b7 b8 ca cb cc cd ce ch ci cl cm cn co cp cq cr cs ct cu cv cw cx cy cz c1 c2 c3 c4 c5 c6 c7 c8 da db dc dd de dh di dl dm dn do dp dq dr ds dt du dv dw dx dy dz d1 d2 d3 d4 d5 d6 d7 d8 ea eb ec ed ee eh ei el em en eo ep eq er es et eu ev ew ex ey ez e1 e2 e3 e4 e5 e6 e7 e8 ha hb hc hd he hh hi hl hm hn ho hp hq hr hs ht hu hv hw hx hy hz h1 h2 h3 h4 h5 h6 h7 h8 ia ib ic id ie ih ii il im in io ip iq ir is it iu iv iw ix iy iz i1 i2 i3 i4 i5 i6 i7 i8 la lb lc ld le lh li ll lm ln lo lp lq lr ls lt lu lv lw lx ly lz l1 l2 l3 l4 l5 l6 l7 l8 ma mb mc md me mh mi ml mm mn mo mp mq mr ms mt mu mv mw mx my mz m1 m2 m3 m4 m5 m6 m7 m8 na nb nc nd ne nh ni nl nm nn no np nq nr ns nt nu nv nw nx ny nz n1 n2 n3 n4 n5 n6 n7 n8 oa ob oc od oe oh oi ol om on oo op oq or os ot ou ov ow ox oy oz o1 o2 o3 o4 o5 o6 o7 o8 pa pb pc pd pe ph pi pl pm pn po pp pq pr ps pt pu pv pw px py pz p1 p2 p3 p4 p5 p6 p7 p8 qa qb qc qd qe qh qi ql qm qn qo qp qq qr qs qt qu qv qw qx qy qz q1 q2 q3 q4 q5 q6 q7 q8 ra rb rc rd re rh ri rl rm rn ro rp rq rr rs rt ru rv rw rx ry rz r1 r2 r3 r4 r5 r6 r7 r8 sa sb sc sd se sh si sl sm sn so sp sq sr ss st su sv sw sx sy sz s1 s2 s3 s4 s5 s6 s7 s8 ta tb tc td te th ti tl tm tn to tp tq tr ts tt tu tv tw tx ty tz t1 t2 t3 t4 t5 t6 t7 t8 ua ub uc ud ue uh ui ul um un uo up uq ur us ut uu uv uw ux uy uz u1 u2 u3 u4 u5 u6 u7 u8 va vb vc vd ve vh vi vl vm vn vo vp vq vr vs vt vu vv vw vx vy vz v1 v2 v3 v4 v5 v6 v7 v8 wa wb wc wd we wh wi wl wm wn wo wp wq wr ws wt wu wv ww wx wy wz w1 w2 w3 w4 w5 w6 w7 w8 xa xb xc xd xe xh xi xl xm xn xo xp xq xr xs xt xu xv xw xx xy xz x1 x2 x3 x4 x5 x6 x7 x8 ya yb yc yd ye yh yi yl ym yn yo yp yq yr ys yt yu yv yw yx yy yz y1 y2 y3 y4 y5 y6 y7 y8 za zb zc zd ze zh zi zl zm zn zo zp zq zr zs zt zu zv zw zx zy zz z1 z2 z3 z4 z5 z6 z7 z8 1a 1b 1c 1d 1e 1h 1i 1l 1m 1n 1o 1p 1q 1r 1s 1t 1u 1v 1w 1x 1y 1z 11 12 13 14 15 16 17 18 2a 2b 2c 2d 2e 2h 2i 2l 2m 2n 2o 2p 2q 2r 2s 2t 2u 2v 2w 2x 2y 2z 21 22 23 24 25 26 27 28 3a 3b 3c 3d 3e 3h 3i 3l 3m 3n 3o 3p 3q 3r 3s 3t 3u 3v 3w 3x 3y 3z 31 32 33 34 35 36 37 38 4a 4b 4c 4d 4e 4h 4i 4l 4m 4n 4o 4p 4q 4r 4s 4t 4u 4v 4w 4x 4y 4z 41 42 43 44 45 46 47 48 5a 5b 5c 5d 5e 5h 5i 5l 5m 5n 5o 5p 5q 5r 5s 5t 5u 5v 5w 5x 5y 5z 51 52 53 54 55 56 57 58 6a 6b 6c 6d 6e 6h 6i 6l 6m 6n 6o 6p 6q 6r 6s 6t 6u 6v 6w 6x 6y 6z 61 62 63 64 65 66 67 68 7a 7b 7c 7d 7e 7h 7i 7l 7m 7n 7o 7p 7q 7r 7s 7t 7u 7v 7w 7x 7y 7z 71 72 73 74 75 76 77 78 8a 8b 8c 8d 8e 8h 8i 8l 8m 8n 8o 8p 8q 8r 8s 8t 8u 8v 8w 8x 8y 8z 81 82 83 84 85 86 87 88'.split(' ');
-
 function key(overrides: Partial<KeyPress>): KeyPress {
   return { ...DEFAULT_PRESS, ...overrides };
 }
@@ -250,7 +247,7 @@ describe('createKeyInterpreter', () => {
     expect(result).toEqual(NO_RESULT);
   });
 
-  it('shows literal Hint codes after f collects three targets', () => {
+  it('shows ss sd sf after f collects three targets', () => {
     // #given
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
@@ -259,7 +256,80 @@ describe('createKeyInterpreter', () => {
     const result = interpreter.linkHintTargets(3);
 
     // #then
-    expect(result).toEqual({ effects: [{ kind: 'showLinkHints', codes: ['aa', 'ab', 'ac'] }], consumed: false });
+    expect(result).toEqual({ effects: [{ kind: 'showLinkHints', codes: ['ss', 'sd', 'sf'] }], consumed: false });
+  });
+
+  it('shows the first eight Hint codes in home-row-first order', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+
+    // #when
+    const result = interpreter.linkHintTargets(8);
+
+    // #then
+    expect(result).toEqual({
+      effects: [{ kind: 'showLinkHints', codes: ['ss', 'sd', 'sf', 'sj', 'sk', 'sl', 'ds', 'dd'] }],
+      consumed: false,
+    });
+  });
+
+  it('uses six Hint characters for 36 targets', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+
+    // #when
+    const result = interpreter.linkHintTargets(36);
+    const effect = result.effects[0];
+    const codes = effect?.kind === 'showLinkHints' ? effect.codes : [];
+
+    // #then
+    expect({ count: codes.length, sixth: codes[5], seventh: codes[6], last: codes[35] }).toEqual({
+      count: 36,
+      sixth: 'sl',
+      seventh: 'ds',
+      last: 'll',
+    });
+  });
+
+  it('widens to seven Hint characters for 37 targets', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+
+    // #when
+    const result = interpreter.linkHintTargets(37);
+    const effect = result.effects[0];
+    const codes = effect?.kind === 'showLinkHints' ? effect.codes : [];
+
+    // #then
+    expect({ count: codes.length, seventh: codes[6], eighth: codes[7], last: codes[36] }).toEqual({
+      count: 37,
+      seventh: 'sa',
+      eighth: 'ds',
+      last: 'ld',
+    });
+  });
+
+  it.each([900, 1000])('caps %i targets at 900 distinct two-character Hint codes', (targetCount) => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+
+    // #when
+    const result = interpreter.linkHintTargets(targetCount);
+    const effect = result.effects[0];
+    const codes = effect?.kind === 'showLinkHints' ? effect.codes : [];
+
+    // #then
+    expect({
+      count: codes.length,
+      first: codes[0],
+      last: codes[899],
+      distinct: new Set(codes).size,
+      allTwoCharacters: codes.every((code) => code.length === 2),
+    }).toEqual({ count: 900, first: 'ss', last: '44', distinct: 900, allTwoCharacters: true });
   });
 
   it('does not enter Link-hint mode for zero targets', () => {
@@ -285,26 +355,72 @@ describe('createKeyInterpreter', () => {
     interpreter.linkHintTargets(3);
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyA' }));
+    const result = interpreter.press(key({ code: 'KeyS' }));
 
     // #then
     expect(result).toEqual({ effects: [{ kind: 'narrowLinkHints', visible: [0, 1, 2] }], consumed: true });
   });
 
-  it('uses the physical Digit1 key as a Hint character', () => {
+  it.each([
+    { name: 'f', targetCount: 36, first: 'KeyF', second: 'KeyS', index: 12 },
+    { name: 'j', targetCount: 36, first: 'KeyJ', second: 'KeyS', index: 18 },
+    { name: 'k', targetCount: 36, first: 'KeyK', second: 'KeyS', index: 24 },
+    { name: 'g', targetCount: 57, first: 'KeyG', second: 'KeyS', index: 56 },
+  ])('accepts $name as the first Hint character', ({ targetCount, first, second, index }) => {
     // #given
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
-    interpreter.linkHintTargets(721);
+    interpreter.linkHintTargets(targetCount);
+    interpreter.press(key({ code: first }));
 
     // #when
-    const result = interpreter.press(key({ code: 'Digit1' }));
+    const result = interpreter.press(key({ code: second }));
 
     // #then
     expect(result).toEqual({
-      effects: [{ kind: 'narrowLinkHints', visible: [660, 661, 662, 663, 664, 665, 666, 667, 668, 669, 670, 671, 672, 673, 674, 675, 676, 677, 678, 679, 680, 681, 682, 683, 684, 685, 686, 687, 688, 689] }],
+      effects: [{ kind: 'activateLinkHint', index }, { kind: 'exitLinkHints' }],
       consumed: true,
     });
+  });
+
+  it.each([
+    { code: 'Digit1', index: 780 },
+    { code: 'Digit2', index: 810 },
+    { code: 'Digit3', index: 840 },
+    { code: 'Digit4', index: 870 },
+  ])('accepts $code as a Hint character', ({ code, index }) => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(900);
+    interpreter.press(key({ code }));
+
+    // #when
+    const result = interpreter.press(key({ code: 'KeyS' }));
+
+    // #then
+    expect(result).toEqual({
+      effects: [{ kind: 'activateLinkHint', index }, { kind: 'exitLinkHints' }],
+      consumed: true,
+    });
+  });
+
+  it.each([
+    { code: 'Digit5' },
+    { code: 'Digit6' },
+    { code: 'Digit7' },
+    { code: 'Digit8' },
+  ])('exits Link-hint mode when $code is the first character', ({ code }) => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(900);
+
+    // #when
+    const result = interpreter.press(key({ code }));
+
+    // #then
+    expect(result).toEqual({ effects: [{ kind: 'exitLinkHints' }], consumed: true });
   });
 
   it('activates the matching target and exits Link-hint mode after a full Hint code', () => {
@@ -312,10 +428,10 @@ describe('createKeyInterpreter', () => {
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(2);
-    interpreter.press(key({ code: 'KeyA' }));
+    interpreter.press(key({ code: 'KeyS' }));
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyB' }));
+    const result = interpreter.press(key({ code: 'KeyD' }));
 
     // #then
     expect(result).toEqual({ effects: [{ kind: 'activateLinkHint', index: 1 }, { kind: 'exitLinkHints' }], consumed: true });
@@ -326,8 +442,8 @@ describe('createKeyInterpreter', () => {
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(2);
-    interpreter.press(key({ code: 'KeyA' }));
-    interpreter.press(key({ code: 'KeyB' }));
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyD' }));
 
     // #when
     const result = interpreter.press(key({ code: 'KeyJ' }));
@@ -369,15 +485,28 @@ describe('createKeyInterpreter', () => {
     expect(result).toEqual({ effects: [{ kind: 'scrollStep', direction: 1 }], consumed: false });
   });
 
+  it('exits Link-hint mode on repeated Escape', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(1);
+
+    // #when
+    const result = interpreter.press(key({ code: 'Escape', repeat: true }));
+
+    // #then
+    expect(result).toEqual({ effects: [{ kind: 'exitLinkHints' }], consumed: true });
+  });
+
   it('exits and consumes a second Hint character that matches no code', () => {
     // #given
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(1);
-    interpreter.press(key({ code: 'KeyA' }));
+    interpreter.press(key({ code: 'KeyS' }));
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyB' }));
+    const result = interpreter.press(key({ code: 'KeyD' }));
 
     // #then
     expect(result).toEqual({ effects: [{ kind: 'exitLinkHints' }], consumed: true });
@@ -388,8 +517,8 @@ describe('createKeyInterpreter', () => {
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(1);
-    interpreter.press(key({ code: 'KeyA' }));
-    interpreter.press(key({ code: 'KeyB' }));
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyD' }));
 
     // #when
     const result = interpreter.press(key({ code: 'KeyJ' }));
@@ -405,7 +534,7 @@ describe('createKeyInterpreter', () => {
     interpreter.linkHintTargets(1);
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyB' }));
+    const result = interpreter.press(key({ code: 'KeyD' }));
 
     // #then
     expect(result).toEqual({ effects: [{ kind: 'exitLinkHints' }], consumed: true });
@@ -416,7 +545,7 @@ describe('createKeyInterpreter', () => {
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(1);
-    interpreter.press(key({ code: 'KeyB' }));
+    interpreter.press(key({ code: 'KeyD' }));
 
     // #when
     const result = interpreter.press(key({ code: 'KeyJ' }));
@@ -444,10 +573,10 @@ describe('createKeyInterpreter', () => {
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(1);
     interpreter.press(key({ code: 'Enter' }));
-    interpreter.press(key({ code: 'KeyA' }));
+    interpreter.press(key({ code: 'KeyS' }));
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyA' }));
+    const result = interpreter.press(key({ code: 'KeyS' }));
 
     // #then
     expect(result).toEqual({ effects: [{ kind: 'activateLinkHint', index: 0 }, { kind: 'exitLinkHints' }], consumed: true });
@@ -466,63 +595,264 @@ describe('createKeyInterpreter', () => {
     interpreter.linkHintTargets(1);
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyA', ...input }));
+    const result = interpreter.press(key({ code: 'KeyS', ...input }));
 
     // #then
     expect(result).toEqual(NO_RESULT);
   });
 
-  it('accepts a repeated Hint character', () => {
-    // #given
-    const interpreter = createKeyInterpreter();
-    interpreter.press(key({ code: 'KeyF' }));
-    interpreter.linkHintTargets(1);
-    interpreter.press(key({ code: 'KeyA', repeat: true }));
-
-    // #when
-    const result = interpreter.press(key({ code: 'KeyA', repeat: true }));
-
-    // #then
-    expect(result).toEqual({ effects: [{ kind: 'activateLinkHint', index: 0 }, { kind: 'exitLinkHints' }], consumed: true });
-  });
-
-  it('keeps Link-hint mode after a shifted Hint key', () => {
-    // #given
-    const interpreter = createKeyInterpreter();
-    interpreter.press(key({ code: 'KeyF' }));
-    interpreter.linkHintTargets(1);
-    interpreter.press(key({ code: 'KeyA', shift: true }));
-    interpreter.press(key({ code: 'KeyA' }));
-
-    // #when
-    const result = interpreter.press(key({ code: 'KeyA' }));
-
-    // #then
-    expect(result).toEqual({ effects: [{ kind: 'activateLinkHint', index: 0 }, { kind: 'exitLinkHints' }], consumed: true });
-  });
-
-  it('leaves a shifted Hint key to the page', () => {
+  it('leaves a shifted Hint key to the page and keeps Link-hint mode', () => {
     // #given
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
     interpreter.linkHintTargets(1);
 
     // #when
-    const result = interpreter.press(key({ code: 'KeyA', shift: true }));
+    const shifted = interpreter.press(key({ code: 'KeyS', shift: true }));
+    interpreter.press(key({ code: 'KeyS' }));
+    const activation = interpreter.press(key({ code: 'KeyS' }));
 
     // #then
-    expect(result).toEqual(NO_RESULT);
+    expect({ shifted, activation }).toEqual({
+      shifted: NO_RESULT,
+      activation: {
+        effects: [{ kind: 'activateLinkHint', index: 0 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+    });
   });
 
-  it('caps Link-hint codes at 900 with 88 as the last code', () => {
+  it('ignores repeated f before plain fs activates target 12', () => {
     // #given
     const interpreter = createKeyInterpreter();
     interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(36);
 
     // #when
-    const result = interpreter.linkHintTargets(1000);
+    const repeated = interpreter.press(key({ code: 'KeyF', repeat: true }));
+    interpreter.press(key({ code: 'KeyF' }));
+    const activation = interpreter.press(key({ code: 'KeyS' }));
 
     // #then
-    expect(result).toEqual({ effects: [{ kind: 'showLinkHints', codes: ALL_HINT_CODES }], consumed: false });
+    expect({ repeated, activation }).toEqual({
+      repeated: { effects: [], consumed: true },
+      activation: {
+        effects: [{ kind: 'activateLinkHint', index: 12 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+    });
+  });
+
+  it('ignores repeated s without changing the s prefix', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(36);
+    interpreter.press(key({ code: 'KeyS' }));
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyS', repeat: true }));
+    const activation = interpreter.press(key({ code: 'KeyD' }));
+
+    // #then
+    expect({ repeated, activation }).toEqual({
+      repeated: { effects: [], consumed: true },
+      activation: {
+        effects: [{ kind: 'activateLinkHint', index: 1 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+    });
+  });
+
+  it('leaves a repeated shifted Hint key to the page and keeps Link-hint mode', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(2);
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyS', shift: true, repeat: true }));
+    interpreter.press(key({ code: 'KeyS' }));
+    const activation = interpreter.press(key({ code: 'KeyD' }));
+
+    // #then
+    expect({ repeated, activation }).toEqual({
+      repeated: NO_RESULT,
+      activation: {
+        effects: [{ kind: 'activateLinkHint', index: 1 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+    });
+  });
+
+  it('leaves a repeated non-Hint key to the page and keeps Link-hint mode', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(2);
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'Enter', repeat: true }));
+    interpreter.press(key({ code: 'KeyS' }));
+    const activation = interpreter.press(key({ code: 'KeyD' }));
+
+    // #then
+    expect({ repeated, activation }).toEqual({
+      repeated: NO_RESULT,
+      activation: {
+        effects: [{ kind: 'activateLinkHint', index: 1 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+    });
+  });
+
+  it.each([
+    { code: 'KeyJ', index: 3 },
+    { code: 'KeyK', index: 4 },
+    { code: 'KeyF', index: 2 },
+  ])('suppresses a repeated $code after it completes a six-target Hint code', ({ code, index }) => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    const completion = interpreter.press(key({ code }));
+
+    // #when
+    const repeated = interpreter.press(key({ code, repeat: true }));
+
+    // #then
+    expect({ completion, repeated }).toEqual({
+      completion: {
+        effects: [{ kind: 'activateLinkHint', index }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+      repeated: { effects: [], consumed: true },
+    });
+  });
+
+  it('suppresses both repeated g presses after sg completes a 57-target Hint code', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(57);
+    interpreter.press(key({ code: 'KeyS' }));
+    const completion = interpreter.press(key({ code: 'KeyG' }));
+
+    // #when
+    const firstRepeat = interpreter.press(key({ code: 'KeyG', repeat: true }));
+    const secondRepeat = interpreter.press(key({ code: 'KeyG', repeat: true }));
+
+    // #then
+    expect({ completion, firstRepeat, secondRepeat }).toEqual({
+      completion: {
+        effects: [{ kind: 'activateLinkHint', index: 7 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+      firstRepeat: { effects: [], consumed: true },
+      secondRepeat: { effects: [], consumed: true },
+    });
+  });
+
+  it('suppresses a repeated j after sj cancels a one-target Link-hint mode', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(1);
+    interpreter.press(key({ code: 'KeyS' }));
+    const cancellation = interpreter.press(key({ code: 'KeyJ' }));
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyJ', repeat: true }));
+
+    // #then
+    expect({ cancellation, repeated }).toEqual({
+      cancellation: { effects: [{ kind: 'exitLinkHints' }], consumed: true },
+      repeated: { effects: [], consumed: true },
+    });
+  });
+
+  it('suppresses a repeated f after sf focuses a six-target Hint target while Typing', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    const completion = interpreter.press(key({ code: 'KeyF' }));
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyF', repeat: true, typing: true }));
+
+    // #then
+    expect({ completion, repeated }).toEqual({
+      completion: {
+        effects: [{ kind: 'activateLinkHint', index: 2 }, { kind: 'exitLinkHints' }],
+        consumed: true,
+      },
+      repeated: { effects: [], consumed: true },
+    });
+  });
+
+  it('allows a repeated j to start Continuous scroll after KeyJ is released', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyJ' }));
+    interpreter.release('KeyJ');
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyJ', repeat: true }));
+
+    // #then
+    expect(repeated).toEqual({ effects: [{ kind: 'startContinuousScroll', direction: 1 }], consumed: false });
+  });
+
+  it('allows a repeated j to start Continuous scroll after the window blurs', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyJ' }));
+    interpreter.blur();
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyJ', repeat: true }));
+
+    // #then
+    expect(repeated).toEqual({ effects: [{ kind: 'startContinuousScroll', direction: 1 }], consumed: false });
+  });
+
+  it('allows a repeated j to start Continuous scroll after another plain key', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyJ' }));
+    interpreter.press(key({ code: 'KeyX' }));
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyJ', repeat: true }));
+
+    // #then
+    expect(repeated).toEqual({ effects: [{ kind: 'startContinuousScroll', direction: 1 }], consumed: false });
+  });
+
+  it('does not suppress a repeated k after sj completes a six-target Hint code', () => {
+    // #given
+    const interpreter = createKeyInterpreter();
+    interpreter.press(key({ code: 'KeyF' }));
+    interpreter.linkHintTargets(6);
+    interpreter.press(key({ code: 'KeyS' }));
+    interpreter.press(key({ code: 'KeyJ' }));
+
+    // #when
+    const repeated = interpreter.press(key({ code: 'KeyK', repeat: true }));
+
+    // #then
+    expect(repeated).toEqual({ effects: [{ kind: 'startContinuousScroll', direction: -1 }], consumed: false });
   });
 });

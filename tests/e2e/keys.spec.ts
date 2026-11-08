@@ -156,8 +156,8 @@ test('Latin Hint code activates the fixture element', async () => {
     await tapSyntheticKey(page, { key: 'f', code: 'KeyF' });
 
     // #when
-    await tapSyntheticKey(page, { key: 'a', code: 'KeyA' });
-    await tapSyntheticKey(page, { key: 'a', code: 'KeyA' });
+    await tapSyntheticKey(page, { key: 's', code: 'KeyS' });
+    await tapSyntheticKey(page, { key: 's', code: 'KeyS' });
 
     // #then
     await expect(page).toHaveURL(/\/hint-page\.html#activated$/);
@@ -174,8 +174,8 @@ test('Russian-layout Hint code activates its element by physical position', asyn
     await tapSyntheticKey(page, { key: 'f', code: 'KeyF' });
 
     // #when
-    await tapSyntheticKey(page, { key: 'ф', code: 'KeyA' });
-    await tapSyntheticKey(page, { key: 'ф', code: 'KeyA' });
+    await tapSyntheticKey(page, { key: 'ы', code: 'KeyS' });
+    await tapSyntheticKey(page, { key: 'ы', code: 'KeyS' });
 
     // #then
     await expect(page).toHaveURL(/\/hint-page\.html#activated$/);

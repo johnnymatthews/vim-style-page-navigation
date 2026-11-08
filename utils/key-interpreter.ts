@@ -1,6 +1,6 @@
 import type { TabDirection } from './tab-switch';
 
-import { hintCharacter, LinkHintMode, type LinkHintResult } from './link-hint-mode';
+import { hintCharacter, isHintCharacter, LinkHintMode, type LinkHintResult } from './link-hint-mode';
 
 export const TAB_SWITCH_DIRECTIONS: Record<string, TabDirection> = {
   KeyJ: 'left',
@@ -56,9 +56,18 @@ export function createKeyInterpreter(): KeyInterpreter {
   let pendingGAt: number | null = null;
   let continuousScrollDirection: ScrollDirection | null = null;
   let inLinkHintMode = false;
+  let suppressedRepeatCode: string | null = null;
   const linkHints = new LinkHintMode();
 
   function press(key: KeyPress): KeyResult {
+    if (key.repeat && suppressedRepeatCode === key.code) {
+      return { effects: [], consumed: true };
+    }
+
+    if (!key.repeat) {
+      suppressedRepeatCode = null;
+    }
+
     if (isGuarded(key)) {
       return NO_RESULT;
     }
@@ -138,16 +147,21 @@ export function createKeyInterpreter(): KeyInterpreter {
       return NO_RESULT;
     }
 
+    if (key.repeat) {
+      return isHintCharacter(character) ? { effects: [], consumed: true } : NO_RESULT;
+    }
+
     const result = linkHints.input(character);
-    return linkHintResult(result);
+    return linkHintResult(result, key.code);
   }
 
-  function linkHintResult(result: LinkHintResult): KeyResult {
+  function linkHintResult(result: LinkHintResult, keyCode: string): KeyResult {
     switch (result.kind) {
       case 'narrow':
         return { effects: [{ kind: 'narrowLinkHints', visible: result.visible }], consumed: true };
       case 'activate':
         inLinkHintMode = false;
+        suppressedRepeatCode = keyCode;
         return {
           effects: [
             { kind: 'activateLinkHint', index: result.index },
@@ -157,11 +171,16 @@ export function createKeyInterpreter(): KeyInterpreter {
         };
       case 'cancel':
         inLinkHintMode = false;
+        suppressedRepeatCode = keyCode;
         return { effects: [{ kind: 'exitLinkHints' }], consumed: true };
     }
   }
 
   function release(code: string): KeyResult {
+    if (suppressedRepeatCode === code) {
+      suppressedRepeatCode = null;
+    }
+
     if (continuousScrollDirection !== null && (code === 'KeyJ' || code === 'KeyK')) {
       continuousScrollDirection = null;
       return { effects: [{ kind: 'stopContinuousScroll' }], consumed: false };
@@ -171,6 +190,8 @@ export function createKeyInterpreter(): KeyInterpreter {
   }
 
   function blur(): KeyResult {
+    suppressedRepeatCode = null;
+
     if (continuousScrollDirection === null) {
       return NO_RESULT;
     }

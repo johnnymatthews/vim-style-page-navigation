@@ -72,7 +72,7 @@ async function deleteCheckVisibilityInContentScript(page: Page): Promise<void> {
   }
 }
 
-test('shows only 900 non-empty Link hints for more than 900 visible targets', async () => {
+test('shows 900 distinct two-character Link hints from ss through 44 for more than 900 visible targets', async () => {
   // #given
   const context = await openExtensionContext();
   const page = await context.newPage();
@@ -93,15 +93,44 @@ test('shows only 900 non-empty Link hints for more than 900 visible targets', as
 
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('8');
 
     // #then
     const codes = await page.locator('.vimnav-link-hint').allTextContents();
     expect({
       count: codes.length,
+      first: codes[0],
+      last: codes[899],
+      distinct: new Set(codes).size,
       invalidCodes: codes.filter((code) => code.length !== 2),
       pageErrors,
-    }).toEqual({ count: 900, invalidCodes: [], pageErrors: [] });
+    }).toEqual({ count: 900, first: 'ss', last: '44', distinct: 900, invalidCodes: [], pageErrors: [] });
+  } finally {
+    await context.close();
+  }
+});
+
+test('holding f keeps every Link hint shown and activates nothing', async () => {
+  // #given
+  const context = await openExtensionContext();
+  const page = await context.newPage();
+
+  try {
+    await page.goto('/many-targets.html');
+    await waitForContentScriptReady(page);
+
+    // #when
+    await page.keyboard.down('f');
+    const initialVisibleHints = await page.locator('.vimnav-link-hint:visible').count();
+    await page.keyboard.down('f');
+    const state = {
+      path: await page.evaluate(() => `${location.pathname}${location.hash}`),
+      initialVisibleHints,
+      visibleHints: await page.locator('.vimnav-link-hint:visible').count(),
+    };
+    await page.keyboard.up('f');
+
+    // #then
+    expect(state).toEqual({ path: '/many-targets.html', initialVisibleHints: 900, visibleHints: 900 });
   } finally {
     await context.close();
   }
@@ -133,9 +162,9 @@ test('assigns Link-hint codes in link, button, then field order', async () => {
 
     // #then
     expect(targetHints).toEqual([
-      { id: 'text-input', code: 'ac', buttonClass: false, inputClass: true },
-      { id: 'action-button', code: 'ab', buttonClass: true, inputClass: false },
-      { id: 'destination-link', code: 'aa', buttonClass: false, inputClass: false },
+      { id: 'text-input', code: 'sf', buttonClass: false, inputClass: true },
+      { id: 'action-button', code: 'sd', buttonClass: true, inputClass: false },
+      { id: 'destination-link', code: 'ss', buttonClass: false, inputClass: false },
     ]);
   } finally {
     await context.close();
@@ -248,10 +277,10 @@ test('shows Link hints on ARIA link, checkbox, and switch controls', async () =>
 
     // #then
     expect(hints).toEqual([
-      { code: 'aa', target: 'open-thread', buttonClass: false },
-      { code: 'ab', target: 'select', buttonClass: true },
-      { code: 'ac', target: 'star', buttonClass: true },
-      { code: 'ad', target: 'importance', buttonClass: true },
+      { code: 'ss', target: 'open-thread', buttonClass: false },
+      { code: 'sd', target: 'select', buttonClass: true },
+      { code: 'sf', target: 'star', buttonClass: true },
+      { code: 'sj', target: 'importance', buttonClass: true },
     ]);
   } finally {
     await context.close();
@@ -265,8 +294,8 @@ test('activates an ARIA checkbox from its Hint code', async () => {
   try {
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('b');
+    await page.keyboard.press('s');
+    await page.keyboard.press('d');
 
     // #then
     await expect(page.locator('#select')).toHaveAttribute('aria-checked', 'true');
@@ -282,8 +311,8 @@ test('activates an ARIA link from its Hint code', async () => {
   try {
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('a');
+    await page.keyboard.press('s');
+    await page.keyboard.press('s');
 
     // #then
     await expect.poll(() => page.evaluate(() => location.hash)).toBe('#thread');
@@ -307,8 +336,8 @@ test('toggles a native checkbox from its Hint code', async () => {
   try {
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('a');
+    await page.keyboard.press('s');
+    await page.keyboard.press('s');
 
     // #then
     await expect(page.locator('#checkbox')).toBeChecked();
@@ -324,8 +353,8 @@ test('selects a native radio button from its Hint code', async () => {
   try {
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('b');
+    await page.keyboard.press('s');
+    await page.keyboard.press('d');
 
     // #then
     await expect(page.locator('#radio')).toBeChecked();
@@ -341,8 +370,8 @@ test('focuses a slider from its Hint code without changing its value', async () 
   try {
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('c');
+    await page.keyboard.press('s');
+    await page.keyboard.press('f');
 
     // #then
     const slider = await page.evaluate(() => {
@@ -366,8 +395,8 @@ test('activates a button that acts on mouse press from its Hint code', async () 
 
     // #when
     await page.keyboard.press('f');
-    await page.keyboard.press('a');
-    await page.keyboard.press('a');
+    await page.keyboard.press('s');
+    await page.keyboard.press('s');
 
     // #then
     await expect.poll(() => page.evaluate(() => location.hash)).toBe('#inbox');
