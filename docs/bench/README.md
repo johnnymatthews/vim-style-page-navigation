@@ -9,19 +9,34 @@
 
 Memory is not measured. Each column is a fresh browser profile; the table shows the median and, in brackets, the 90th percentile of 20 runs.
 
+## Baseline check
+
+`npm run bench:check` builds the extension, runs the single-page scenario in a Docker container, and compares it with `baseline.json`. `npm run bench:baseline` records a new baseline the same way. Both need Docker. The run takes about 6 minutes.
+
+The container is `docs/bench/Dockerfile`: the Playwright image that matches `@playwright/test` in `package-lock.json`, with 2 CPUs and 4 GB through `docs/bench/docker.sh` (`BENCH_CPUS`, `BENCH_MEMORY`). The image pins the Chromium build, and the CPU cap removes most of the difference between machines. `baseline.json` records the platform, architecture, container flag, and Chromium version; the check stops before the runs when any of them differs from the current environment. The numbers inside the container differ from the native table below: no GPU, two cores. Compare container runs only with container runs.
+
+The check compares medians of 20 runs:
+
+- `DOMContentLoaded`, `load`, and script-time rows are compared as overhead: the jk-nav median minus the no-extension median, so the page's own cost drops out.
+- `j`, second `j`, and `f` latencies are compared as jk-nav medians.
+- A row fails when the current value is above `max(baseline, 0) × 1.25 + 2 ms`. The 2 ms floor covers the noise of a difference of two medians; a differently sized regression, such as the 40 ms `load` delay of the first optimization round, is far outside it.
+- Main-thread task time is shown as `info` and never fails: the page itself dominates it and it moves by several milliseconds between runs.
+
+A failed check exits 1 and names the rows above the limit. Record a new baseline only after a change that is meant to move a number, and say so in the commit.
+
 ## Run
 
 ```sh
 npm run build
-BENCH_OTHER=/path/to/unpacked-extension BENCH_OTHER_NAME="Vimium C" npx tsx docs/bench/bench.ts 20
+BENCH_OTHER=/path/to/unpacked-extension BENCH_OTHER_NAME="Vimium C" node docs/bench/bench.ts 20
 
 # Multi-frame comparison. Use a build made from the before commit and the current build.
 BENCH_JK_NAV_BEFORE=/path/to/jk-nav-before/.output/chrome-mv3 \
 BENCH_JK_NAV_AFTER=.output/chrome-mv3 \
-npx tsx docs/bench/bench.ts --multi-frame 5
+node docs/bench/bench.ts --multi-frame 5
 ```
 
-Without `BENCH_OTHER` the default table has two columns: no extension and jk-nav. The multi-frame table has no extension, jk-nav before, and jk-nav after columns. The last run is in `results.json`.
+Without `BENCH_OTHER` the default table has two columns: no extension and jk-nav. The multi-frame table has no extension, jk-nav before, and jk-nav after columns. The last run is in `results.json`. `npm run bench` runs the same script natively; a native run writes `results.json` and does not touch the baseline.
 
 ## Result
 

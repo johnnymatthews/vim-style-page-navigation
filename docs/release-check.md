@@ -11,9 +11,10 @@ npm ci
 npm test
 npm run zip
 npm run zip:firefox
+npm run bench:check
 ```
 
-Done when every command exits 0 and `.output/` contains `jk-nav-<version>-chrome.zip` and `jk-nav-<version>-firefox.zip`. This is acceptance criterion 8.
+Done when every command exits 0 and `.output/` contains `jk-nav-<version>-chrome.zip` and `jk-nav-<version>-firefox.zip`. This is acceptance criterion 8. `bench:check` needs Docker and takes about 6 minutes; it prints a table where every gated row is `pass`. A `fail` row is a performance regression against `docs/bench/baseline.json`; fix it or record a new baseline on purpose, see `docs/bench/README.md`.
 
 ## 2. Install each package in a clean profile
 

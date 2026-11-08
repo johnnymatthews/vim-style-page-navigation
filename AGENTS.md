@@ -14,6 +14,7 @@ This repo is `Seigiard/jk-nav`, a GitHub fork of `johnnymatthews/vim-style-page-
 - Set `E2E_PORT` when several checkouts run e2e at once; each needs its own fixture-server port (default 4173).
 - Playwright runs only in Chromium. The Firefox package is checked by hand through `docs/release-check.md`.
 - Both `npm run zip` and `npm run zip:firefox` must succeed (acceptance criterion 8).
+- `npm run bench:check` is the performance gate before a release. It needs Docker, takes about 6 minutes, and compares medians with `docs/bench/baseline.json`; `docs/bench/README.md` has the rule. A native `npm run bench` cannot check or record the baseline.
 
 ## Architecture
 

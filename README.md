@@ -71,9 +71,10 @@ Before a release, check both packages by hand in Chrome and Firefox:
 
 ## Performance
 
-`docs/bench/` measures page-load overhead and key latency against another
-extension in Chromium; `docs/bench/README.md` has the method and the last
-result against Vimium C.
+`docs/bench/` measures page-load overhead and key latency in Chromium;
+`docs/bench/README.md` has the method and the last result against Vimium C.
+`npm run bench:check` compares the current build with `docs/bench/baseline.json`
+in a fixed Docker container and fails on a regression.
 
 ## Permissions
 
