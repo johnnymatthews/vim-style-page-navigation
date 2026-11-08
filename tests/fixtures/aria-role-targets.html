@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JK Nav ARIA-role Link-hint fixture</title>
+  </head>
+  <body>
+    <!-- Mirrors a Gmail inbox row: ARIA widgets on plain elements, no native controls. -->
+    <table>
+      <tr id="thread-row" role="row" tabindex="-1">
+        <td><div id="select" role="checkbox" aria-checked="false" tabindex="-1">&#9744;</div></td>
+        <td><span id="star" role="button" aria-label="Not starred">&#9734;</span></td>
+        <td><div id="importance" role="switch" aria-checked="false">&#9655;</div></td>
+        <td role="gridcell" tabindex="-1"><div id="open-thread" role="link">Subject</div></td>
+      </tr>
+    </table>
+    <script>
+      document.getElementById('select').addEventListener('click', (event) => {
+        const box = event.currentTarget;
+        box.setAttribute('aria-checked', box.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+      });
+      document.getElementById('thread-row').addEventListener('click', (event) => {
+        if (event.target.closest('[role="link"]')) {
+          location.hash = '#thread';
+        }
+      });
+    </script>
+  </body>
+</html>

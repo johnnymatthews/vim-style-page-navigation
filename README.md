@@ -22,7 +22,7 @@ It keeps Upstream's page controls and adds keyboard tab switching.
 | `G` | Go to the bottom of the page. |
 | `H` | Go back in browser history. |
 | `L` | Go forward in browser history. |
-| `f` | Enter Link-hint mode. `jk-nav` shows a two-key Hint code beside each visible link, button, and form field, at most 900 at a time: the first 900 in document order, links first, then buttons, then form fields. Type a code to activate that element. |
+| `f` | Enter Link-hint mode. `jk-nav` shows a two-key Hint code beside each visible link, button, and form field, at most 900 at a time: the first 900 in document order, links first, then buttons, then form fields. Controls that web apps build with ARIA roles, such as the message rows and checkboxes in Gmail, count as links and buttons. Type a code to activate that element. |
 | `Esc` | Leave Link-hint mode without activating an element. |
 | `Shift+J` | Switch to the Left tab in the current window. |
 | `Shift+K` | Switch to the Right tab in the current window. |

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>JK Nav mouse-press button fixture</title>
+  </head>
+  <body>
+    <!-- Mirrors Gmail's "Back to Inbox" toolbar button: it acts on mousedown then mouseup and ignores a bare click. -->
+    <div id="back" role="button" tabindex="0" aria-label="Back to Inbox">&larr;</div>
+    <script>
+      const back = document.getElementById('back');
+      let pressed = false;
+      back.addEventListener('mousedown', (event) => {
+        pressed = event.button === 0;
+      });
+      back.addEventListener('mouseup', () => {
+        if (pressed) {
+          location.hash = '#inbox';
+        }
+        pressed = false;
+      });
+    </script>
+  </body>
+</html>
