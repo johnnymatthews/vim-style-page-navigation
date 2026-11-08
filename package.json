@@ -14,7 +14,10 @@
     "test:unit": "vitest run",
     "test:e2e": "npm run build && npm run test:e2e:run",
     "test:e2e:run": "playwright test",
-    "test": "npm run build && npm run test:unit && npm run test:e2e:run"
+    "test": "npm run build && npm run test:unit && npm run test:e2e:run",
+    "bench": "node docs/bench/bench.ts",
+    "bench:baseline": "npm run build && docs/bench/docker.sh --baseline",
+    "bench:check": "npm run build && docs/bench/docker.sh --check"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

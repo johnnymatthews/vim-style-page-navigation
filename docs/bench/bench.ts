@@ -3,25 +3,49 @@
 //
 //   npm run build
 //   BENCH_OTHER=/path/to/unpacked-extension BENCH_OTHER_NAME="Vimium C" \
-//     npx tsx docs/bench/bench.ts [iterations]
+//     node docs/bench/bench.ts [iterations]
 //   BENCH_JK_NAV_BEFORE=/path/to/before BENCH_JK_NAV_AFTER=.output/chrome-mv3 \
-//     npx tsx docs/bench/bench.ts --multi-frame 5
+//     node docs/bench/bench.ts --multi-frame 5
 //
 // Prints a Markdown table and writes docs/bench/results.json.
+//
+// Baseline gate, run through docs/bench/docker.sh so the environment is fixed:
+//   node docs/bench/bench.ts --baseline   writes docs/bench/baseline.json
+//   node docs/bench/bench.ts --check      compares with it; exit 1 on a regression
 import { chromium, type BrowserContext, type CDPSession, type Frame, type Page } from '@playwright/test';
 import http from 'node:http';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  compareToBaseline,
+  environmentMismatch,
+  METRIC_LABELS,
+  quantile,
+  summarize,
+  type Baseline,
+  type Environment,
+} from './baseline.ts';
 
 const root = path.resolve(fileURLToPath(new URL('../..', import.meta.url)));
 const args = process.argv.slice(2);
 const multiFrame = args.includes('--multi-frame') || process.env.BENCH_SCENARIO === 'multi-frame';
 const iterations = Number(args.find((arg) => /^\d+$/.test(arg)) ?? 20);
+const mode: 'report' | 'check' | 'baseline' = args.includes('--check')
+  ? 'check'
+  : args.includes('--baseline') ? 'baseline' : 'report';
+if (mode !== 'report' && (multiFrame || process.env.BENCH_OTHER)) {
+  throw new Error(`--${mode} runs only the single-page scenario with the no-extension and jk-nav columns`);
+}
 const LINKS = 3000;
 const PARAGRAPHS = 400;
 const FRAME_AD_COUNT = 3;
 const defaultResultsPath = path.join(root, 'docs/bench/results.json');
+const baselinePath = process.env.BENCH_BASELINE_PATH ?? path.join(root, 'docs/bench/baseline.json');
+if (mode === 'check' && !existsSync(baselinePath)) {
+  throw new Error(`${path.relative(root, baselinePath)} is missing; run with --baseline first`);
+}
+const recordedBaseline = mode === 'check' ? JSON.parse(readFileSync(baselinePath, 'utf8')) as Baseline : null;
 
 interface Config {
   name: string;
@@ -458,12 +482,6 @@ async function measure(page: Page, url: string): Promise<Sample> {
   return { ...nav, scriptDuration, taskDuration, jLatency, jWarmLatency, fLatency };
 }
 
-function quantile(values: number[], q: number): number {
-  const sorted = values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
-  if (sorted.length === 0) return NaN;
-  return sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))]!;
-}
-
 const fmt = (value: number) => (Number.isFinite(value) ? value.toFixed(1) : 'n/a');
 
 function printTable(results: Record<string, Sample[]>): void {
@@ -521,10 +539,38 @@ function printTable(results: Record<string, Sample[]>): void {
   }
 }
 
+function printCheck(baseline: Baseline, rows: ReturnType<typeof compareToBaseline>): void {
+  console.log(`\nBaseline ${baseline.commit ?? 'unknown commit'}, recorded ${baseline.recordedAt}, `
+    + `${baseline.iterations} runs; limit = max(baseline, 0) × ${1 + baseline.tolerance.ratio} + ${baseline.tolerance.floorMs} ms.\n`);
+  console.log('| Metric | baseline | current | limit | status |');
+  console.log('| --- | --- | --- | --- | --- |');
+  for (const row of rows) {
+    console.log(`| ${METRIC_LABELS[row.metric]} | ${fmt(row.baseline)} | ${fmt(row.current)} | ${fmt(row.limit)} | ${row.status} |`);
+  }
+}
+
 const server = await serve();
 const results: Record<string, Sample[]> = {};
+let chromiumVersion = 'unknown';
+const currentEnvironment = (): Environment => ({
+  platform: process.platform,
+  arch: process.arch,
+  container: process.env.BENCH_CONTAINER === '1',
+  chromium: chromiumVersion,
+});
 for (const config of configs) {
   const context = await launch(config);
+  chromiumVersion = context.browser()?.version() ?? chromiumVersion;
+  if (recordedBaseline !== null) {
+    // Fail before the runs, not after minutes of measuring.
+    const mismatch = environmentMismatch(recordedBaseline.environment, currentEnvironment());
+    if (mismatch !== null) {
+      await context.close();
+      server.close();
+      throw new Error(`The baseline was recorded in another environment (${mismatch}); `
+        + 'run through docs/bench/docker.sh or record a new baseline');
+    }
+  }
   await context.waitForEvent('page', { timeout: 3000 }).catch(() => undefined); // extension welcome tabs
   const samples: Sample[] = [];
   for (let i = 0; i < iterations; i += 1) {
@@ -541,7 +587,29 @@ server.close();
 
 printTable(results);
 const outputPath = process.env.BENCH_RESULTS_PATH ?? defaultResultsPath;
-if (multiFrame) {
+if (mode === 'baseline') {
+  const [control, jkNav] = configs.map((config) => results[config.name]!);
+  const baseline: Baseline = {
+    recordedAt: new Date().toISOString(),
+    commit: process.env.BENCH_COMMIT ?? null,
+    iterations,
+    environment: currentEnvironment(),
+    tolerance: { ratio: 0.25, floorMs: 2 },
+    metrics: summarize(control!, jkNav!),
+  };
+  writeFileSync(baselinePath, `${JSON.stringify(baseline, null, 2)}\n`);
+  console.log(`\nBaseline written to ${path.relative(root, baselinePath)}`);
+} else if (recordedBaseline !== null) {
+  const [control, jkNav] = configs.map((config) => results[config.name]!);
+  const rows = compareToBaseline(recordedBaseline, summarize(control!, jkNav!));
+  printCheck(recordedBaseline, rows);
+  const failed = rows.filter((row) => row.status === 'fail');
+  if (failed.length > 0) {
+    console.error(`\n${failed.length} metric(s) above the limit: ${failed.map((row) => row.metric).join(', ')}`);
+    process.exit(1);
+  }
+  console.log('\nAll gated metrics are within the limit.');
+} else if (multiFrame) {
   const multiFrameResult = {
     iterations,
     fixture: {

@@ -1,0 +1,24 @@
+{
+  "recordedAt": "2026-11-08T14:10:42.460Z",
+  "commit": "v1.1.0-10-g6c1e79a-dirty",
+  "iterations": 20,
+  "environment": {
+    "platform": "linux",
+    "arch": "arm64",
+    "container": true,
+    "chromium": "156.0.8078.80"
+  },
+  "tolerance": {
+    "ratio": 0.25,
+    "floorMs": 2
+  },
+  "metrics": {
+    "domContentLoadedOverhead": -0.7,
+    "loadOverhead": -1,
+    "scriptDurationOverhead": 1.36,
+    "taskDurationOverhead": 2.156,
+    "jLatency": 6.3,
+    "jWarmLatency": 8.8,
+    "fLatency": 23.9
+  }
+}

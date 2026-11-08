@@ -1,0 +1,4 @@
+# docs/bench/Dockerfile needs only the lockfile; the rest is mounted at run time.
+*
+!package.json
+!package-lock.json
