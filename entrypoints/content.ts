@@ -34,6 +34,19 @@ export default defineContentScript({
       'image',
     ]);
 
+    // ARIA widgets that web apps such as Gmail build from plain elements; a click activates them.
+    const CLICKABLE_ROLE_SELECTOR = [
+      'button',
+      'link',
+      'checkbox',
+      'switch',
+      'radio',
+      'tab',
+      'menuitem',
+      'menuitemcheckbox',
+      'menuitemradio',
+    ].map((role) => `[role="${role}"]`).join(', ');
+
     type LinkHintType = 'link' | 'button' | 'input';
 
     interface LinkHint {
@@ -331,7 +344,7 @@ export default defineContentScript({
       const buttons: VisibleElement[] = [];
       const inputs: VisibleElement[] = [];
       const candidates = document.querySelectorAll<HTMLElement>(
-        'a, button, input, textarea, select, [role="button"]',
+        `a, button, input, textarea, select, ${CLICKABLE_ROLE_SELECTOR}`,
       );
 
       candidates.forEach((element) => {
@@ -340,9 +353,9 @@ export default defineContentScript({
           return;
         }
 
-        if (element.matches('a')) {
+        if (element.matches('a, [role="link"]')) {
           links.push({ element, type: 'link', rect });
-        } else if (element.matches('button, input[type="button"], input[type="submit"], [role="button"]')) {
+        } else if (element.matches(`button, input[type="button"], input[type="submit"], ${CLICKABLE_ROLE_SELECTOR}`)) {
           buttons.push({ element, type: 'button', rect });
         } else {
           inputs.push({ element, type: 'input', rect });

@@ -220,3 +220,74 @@ test('falls back when checkVisibility is unavailable', async () => {
     await context.close();
   }
 });
+
+async function openAriaRolePage() {
+  const context = await openExtensionContext();
+  const page = await context.newPage();
+  await page.goto('/aria-role-targets.html');
+  await waitForContentScriptReady(page);
+  return { context, page };
+}
+
+test('shows Link hints on ARIA link, checkbox, and switch controls', async () => {
+  // #given
+  const { context, page } = await openAriaRolePage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    const hints = await page.evaluate(() => [...document.querySelectorAll('.vimnav-link-hint')].map((hint) => {
+      const rect = hint.getBoundingClientRect();
+      const target = document.elementFromPoint(rect.left + 15, rect.top + 15)?.closest('[id]');
+      return {
+        code: hint.textContent,
+        target: target?.id,
+        buttonClass: hint.classList.contains('vimnav-button-hint'),
+      };
+    }));
+
+    // #then
+    expect(hints).toEqual([
+      { code: 'aa', target: 'open-thread', buttonClass: false },
+      { code: 'ab', target: 'select', buttonClass: true },
+      { code: 'ac', target: 'star', buttonClass: true },
+      { code: 'ad', target: 'importance', buttonClass: true },
+    ]);
+  } finally {
+    await context.close();
+  }
+});
+
+test('activates an ARIA checkbox from its Hint code', async () => {
+  // #given
+  const { context, page } = await openAriaRolePage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('b');
+
+    // #then
+    await expect(page.locator('#select')).toHaveAttribute('aria-checked', 'true');
+  } finally {
+    await context.close();
+  }
+});
+
+test('activates an ARIA link from its Hint code', async () => {
+  // #given
+  const { context, page } = await openAriaRolePage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('a');
+
+    // #then
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe('#thread');
+  } finally {
+    await context.close();
+  }
+});
