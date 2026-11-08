@@ -9,6 +9,7 @@ It keeps Upstream's page controls and adds keyboard tab switching.
 
 ## Install
 
+- Chrome: [Chrome Web Store](https://chromewebstore.google.com/detail/bceclnmjinfeoafkifaalopkhepjobgb)
 - Firefox: [addons.mozilla.org/addon/jk-nav](https://addons.mozilla.org/addon/jk-nav/)
 
 ## Keys
