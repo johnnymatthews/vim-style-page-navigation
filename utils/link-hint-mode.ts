@@ -1,5 +1,5 @@
 // Link-hint mode accepts every character in this sequence as input.
-const HINT_CHARS = 'abcdehilmnopqrstuvwxyz12345678';
+const HINT_CHARS = 'sdfjklaghewiourcmnvxtybpqz1234';
 const MAX_HINT_CODES = HINT_CHARS.length * HINT_CHARS.length;
 
 export type LinkHintResult =
@@ -13,11 +13,12 @@ export class LinkHintMode {
 
   start(count: number): string[] {
     const codeCount = Math.min(Math.max(0, count), MAX_HINT_CODES);
+    const alphabetSize = Math.min(HINT_CHARS.length, Math.max(6, Math.ceil(Math.sqrt(codeCount))));
     this.codes = [];
     this.prefix = '';
 
-    for (let i = 0; i < HINT_CHARS.length && this.codes.length < codeCount; i += 1) {
-      for (let j = 0; j < HINT_CHARS.length && this.codes.length < codeCount; j += 1) {
+    for (let i = 0; i < alphabetSize && this.codes.length < codeCount; i += 1) {
+      for (let j = 0; j < alphabetSize && this.codes.length < codeCount; j += 1) {
         this.codes.push(HINT_CHARS[i]! + HINT_CHARS[j]!);
       }
     }
@@ -59,4 +60,8 @@ export function hintCharacter(code: string): string | null {
   }
 
   return null;
+}
+
+export function isHintCharacter(character: string): boolean {
+  return HINT_CHARS.includes(character);
 }
