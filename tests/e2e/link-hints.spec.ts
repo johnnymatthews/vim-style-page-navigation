@@ -354,3 +354,24 @@ test('focuses a slider from its Hint code without changing its value', async () 
     await context.close();
   }
 });
+
+test('activates a button that acts on mouse press from its Hint code', async () => {
+  // #given
+  const context = await openExtensionContext();
+  const page = await context.newPage();
+
+  try {
+    await page.goto('/mouse-press-button.html');
+    await waitForContentScriptReady(page);
+
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('a');
+
+    // #then
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe('#inbox');
+  } finally {
+    await context.close();
+  }
+});

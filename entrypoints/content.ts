@@ -464,8 +464,33 @@ export default defineContentScript({
       if (type === 'input' && !(element instanceof HTMLInputElement && CLICKED_INPUT_TYPES.has(element.type))) {
         element.focus();
       } else {
-        element.click();
+        pressElement(element);
       }
+    }
+
+    // Some web-app buttons, such as Gmail's toolbar, act on mousedown then mouseup and ignore a
+    // bare click, so a Link hint presses the element the way a mouse would before clicking it.
+    function pressElement(element: HTMLElement): void {
+      const rect = element.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      for (const type of ['pointerdown', 'mousedown', 'pointerup', 'mouseup']) {
+        const init = {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          view: window,
+          clientX: x,
+          clientY: y,
+          button: 0,
+          buttons: type.endsWith('down') ? 1 : 0,
+          detail: 1,
+        };
+        element.dispatchEvent(type.startsWith('pointer')
+          ? new PointerEvent(type, { ...init, pointerId: 1, pointerType: 'mouse', isPrimary: true })
+          : new MouseEvent(type, init));
+      }
+      element.click();
     }
 
     function exitLinkHintMode(): void {
