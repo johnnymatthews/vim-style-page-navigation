@@ -34,6 +34,17 @@ export default defineContentScript({
       'image',
     ]);
 
+    // Fields a person cannot type into: a Link hint activates them instead of focusing them.
+    // A slider keeps focus, so the arrow keys can move it.
+    const CLICKED_INPUT_TYPES = new Set([
+      'checkbox',
+      'radio',
+      'color',
+      'file',
+      'reset',
+      'image',
+    ]);
+
     // ARIA widgets that web apps such as Gmail build from plain elements; a click activates them.
     const CLICKABLE_ROLE_SELECTOR = [
       'button',
@@ -450,7 +461,7 @@ export default defineContentScript({
     }
 
     function activateElement(element: HTMLElement, type: LinkHintType): void {
-      if (type === 'input') {
+      if (type === 'input' && !(element instanceof HTMLInputElement && CLICKED_INPUT_TYPES.has(element.type))) {
         element.focus();
       } else {
         element.click();

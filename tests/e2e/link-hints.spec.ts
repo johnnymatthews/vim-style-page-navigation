@@ -291,3 +291,66 @@ test('activates an ARIA link from its Hint code', async () => {
     await context.close();
   }
 });
+
+async function openNativeControlPage() {
+  const context = await openExtensionContext();
+  const page = await context.newPage();
+  await page.goto('/native-controls.html');
+  await waitForContentScriptReady(page);
+  return { context, page };
+}
+
+test('toggles a native checkbox from its Hint code', async () => {
+  // #given
+  const { context, page } = await openNativeControlPage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('a');
+
+    // #then
+    await expect(page.locator('#checkbox')).toBeChecked();
+  } finally {
+    await context.close();
+  }
+});
+
+test('selects a native radio button from its Hint code', async () => {
+  // #given
+  const { context, page } = await openNativeControlPage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('b');
+
+    // #then
+    await expect(page.locator('#radio')).toBeChecked();
+  } finally {
+    await context.close();
+  }
+});
+
+test('focuses a slider from its Hint code without changing its value', async () => {
+  // #given
+  const { context, page } = await openNativeControlPage();
+
+  try {
+    // #when
+    await page.keyboard.press('f');
+    await page.keyboard.press('a');
+    await page.keyboard.press('c');
+
+    // #then
+    const slider = await page.evaluate(() => {
+      const range = document.getElementById('range') as HTMLInputElement;
+      return { focused: document.activeElement === range, value: range.value };
+    });
+    expect(slider).toEqual({ focused: true, value: '50' });
+  } finally {
+    await context.close();
+  }
+});
