@@ -7,6 +7,11 @@ one Manifest V3 codebase for Chrome and Firefox.
 the Vim-style page navigation extension by [@johnnymatthews](https://github.com/johnnymatthews).
 It keeps Upstream's page controls and adds keyboard tab switching.
 
+## Install
+
+- Chrome: [Chrome Web Store](https://chromewebstore.google.com/detail/bceclnmjinfeoafkifaalopkhepjobgb)
+- Firefox: [addons.mozilla.org/addon/jk-nav](https://addons.mozilla.org/addon/jk-nav/)
+
 ## Keys
 
 | Key | Action |

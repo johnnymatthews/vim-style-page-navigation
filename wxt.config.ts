@@ -4,7 +4,7 @@ export default defineConfig({
   manifestVersion: 3,
   manifest: ({ browser }) => ({
     name: 'JK Vim-Style Page/Tab Navigation',
-    version: '1.0.1',
+    version: '1.1.0',
     description: 'Vim keys on every page: j/k scroll, gg/G, f link hints, H/L history, Shift+J/K switch tabs. Works in any keyboard layout.',
     permissions: ['tabGroups'],
     icons: {
