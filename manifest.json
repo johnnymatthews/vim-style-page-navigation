@@ -7,11 +7,15 @@
     "48": "icons/icon-48.jpg",
     "96": "icons/icon-96.jpg"
   },
+  "action": {
+    "default_title": "Vim-Style Page Navigation",
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
       "js": ["page-navigator.js"]
     }
   ],
-  "permissions": []
+  "permissions": ["storage", "activeTab"]
 }

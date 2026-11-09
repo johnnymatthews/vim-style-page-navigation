@@ -23,13 +23,23 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
   - `j`/`k` still scroll while hints are showing
   - `Backspace` undoes a typed character, `Esc` cancels
 - `Esc`: Also blurs a focused text field, so `j`/`k` work again afterwards
+- `?`: Show the available keys (any key dismisses)
 
 ## Features
 
-- No settings, no permissions, no background script — one content script
+- No settings to tune, no background script — one content script plus a tiny popup
 - Shortcuts stay out of the way while you're typing in a form
 - Browser shortcuts (ctrl/cmd combos, F5, …) pass through untouched
 - Works on all websites
+
+## Disabling it on specific sites
+
+Some sites (Gmail, GitHub, …) ship their own keyboard shortcuts. Click the extension's toolbar icon and hit **Disable on this site** — the extension goes fully inert on that domain, instantly, across all open tabs. Click again to re-enable. The list is kept in `storage.local`.
+
+## Permissions
+
+- `storage`: remembers which sites you've disabled it on
+- `activeTab`: lets the popup read the current tab's hostname when you click the icon
 
 ## Installation
 
@@ -51,7 +61,8 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
 ```
 vim-style-page-navigation/
 ├── manifest.json            # Extension metadata
-├── page-navigator.js        # All the functionality
+├── page-navigator.js        # Content script: all the navigation logic
+├── popup.html / popup.js    # Toolbar popup: per-site on/off switch
 ├── package-extension.sh     # Builds the zip for submission
 ├── test-page-navigator.js   # Self-check: node test-page-navigator.js
 ├── README.md

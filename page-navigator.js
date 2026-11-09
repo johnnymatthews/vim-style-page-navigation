@@ -25,9 +25,24 @@ let hintMode = false;
 let hints = []; // { badge, target, code, wantsFocus }
 let typed = '';
 let openInNewTab = false; // set by F, consumed on activation
+let helpOverlay = null;
+
+// Per-site on/off switch, toggled from the toolbar popup. The script always
+// loads; on a disabled host every handler below stays inert.
+let enabled = true;
+browser.storage.local.get('disabledHosts').then(({ disabledHosts = [] }) => {
+  enabled = !disabledHosts.includes(location.hostname);
+});
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes.disabledHosts) return;
+  enabled = !(changes.disabledHosts.newValue || []).includes(location.hostname);
+  if (!enabled) { exitHintMode(); hideHelp(); }
+});
 
 document.addEventListener('keydown', (event) => {
+  if (!enabled) return;
   if (hintMode) return handleHintKey(event);
+  if (helpOverlay) { hideHelp(); return; } // any key closes the help card
   if (event.ctrlKey || event.metaKey || event.altKey) return; // don't fight browser shortcuts
 
   if (isUserTyping()) {
@@ -53,15 +68,20 @@ document.addEventListener('keydown', (event) => {
         enterHintMode(event.key === 'F');
       }
       break;
+    case '?':
+      event.preventDefault();
+      showHelp();
+      break;
   }
 
   lastKey = event.key;
   lastKeyTime = Date.now();
 });
 
-// A real mouse click dismisses any lingering hints.
+// A real mouse click dismisses any lingering hints or help.
 document.addEventListener('click', () => {
   if (hintMode) exitHintMode();
+  if (helpOverlay) hideHelp();
 }, true);
 
 // --- link hints --------------------------------------------------------------
@@ -159,6 +179,33 @@ function exitHintMode() {
 function openLinkInNewTab(el) {
   const mod = /Mac/.test(navigator.platform) ? { metaKey: true } : { ctrlKey: true };
   el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, ...mod }));
+}
+
+// --- help overlay ------------------------------------------------------------
+
+function showHelp() {
+  const rows = [
+    ['j / k', 'scroll down / up (hold to keep going)'],
+    ['gg / G', 'jump to top / bottom'],
+    ['H / L', 'history back / forward'],
+    ['f / F', 'follow link / open link in a new tab'],
+    ['Esc', 'cancel hints, blur a form field'],
+    ['?', 'this help'],
+  ];
+  const card = document.createElement('div');
+  card.style.cssText = 'background:#1e1e1e;color:#eee;padding:18px 26px;border-radius:8px;font:14px/1.9 monospace;box-shadow:0 8px 30px rgba(0,0,0,.6);';
+  card.innerHTML = '<b>vim-style page navigation</b><br>' +
+    rows.map(([k, d]) => `<span style="color:#ffd75f">${k.padEnd(8)}</span>${d}`).join('<br>') +
+    '<br><span style="color:#888">hint mode: type a code · j/k scroll · backspace undoes · esc cancels</span>';
+  helpOverlay = document.createElement('div');
+  helpOverlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);';
+  helpOverlay.appendChild(card);
+  document.body.appendChild(helpOverlay);
+}
+
+function hideHelp() {
+  if (helpOverlay) helpOverlay.remove();
+  helpOverlay = null;
 }
 
 // --- helpers -----------------------------------------------------------------
