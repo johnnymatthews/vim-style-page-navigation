@@ -10,7 +10,10 @@
 
 const SCROLL_AMOUNT = 60; // px per j/k press
 const GG_TIMEOUT = 500; // ms allowed between the two g's
-const HINT_CHARS = 'abcdehilmnopqrstuvwxyz12345678'; // j, k, g, f stay reserved for navigation
+// Home row first, so the most common hints are the easiest keys. j/k stay
+// reserved (they scroll, even in hint mode); f and g are fair game inside
+// hint mode since they only mean something outside it. Digits are overflow.
+const HINT_CHARS = 'asdfghlqwertyuiopzxcvbnm1234567890';
 const MAX_HINTS = HINT_CHARS.length ** 2;
 const CLICKABLE = 'a[href], button, [role="button"], input:not([type="hidden"]), textarea, select';
 const TEXT_INPUT_TYPES = ['text', 'search', 'email', 'password', 'url', 'tel', 'number'];
@@ -21,6 +24,7 @@ let lastKeyTime = 0;
 let hintMode = false;
 let hints = []; // { badge, target, code, wantsFocus }
 let typed = '';
+let openInNewTab = false; // set by F, consumed on activation
 
 document.addEventListener('keydown', (event) => {
   if (hintMode) return handleHintKey(event);
@@ -43,9 +47,10 @@ document.addEventListener('keydown', (event) => {
       }
       break;
     case 'f':
+    case 'F':
       if (!event.repeat) {
         event.preventDefault();
-        enterHintMode();
+        enterHintMode(event.key === 'F');
       }
       break;
   }
@@ -61,7 +66,7 @@ document.addEventListener('click', () => {
 
 // --- link hints --------------------------------------------------------------
 
-function enterHintMode() {
+function enterHintMode(newTab = false) {
   // ponytail: hints are a snapshot taken on f; links scrolled into view
   // afterwards have none — press f again to refresh
   const targets = [...document.querySelectorAll(CLICKABLE)]
@@ -72,6 +77,7 @@ function enterHintMode() {
   const codes = hintCodes(targets.length);
   hintMode = true;
   typed = '';
+  openInNewTab = newTab;
 
   targets.forEach((target, i) => {
     const rect = target.getBoundingClientRect();
@@ -126,7 +132,13 @@ function updateHints() {
   }
   if (exact) {
     exitHintMode();
-    exact.wantsFocus ? exact.target.focus() : exact.target.click();
+    if (exact.wantsFocus) {
+      exact.target.focus();
+    } else if (openInNewTab && exact.target.matches('a[href]')) {
+      openLinkInNewTab(exact.target);
+    } else {
+      exact.target.click();
+    }
   } else if (!anyMatch) {
     exitHintMode(); // a typo is a dead end, not a trap
   }
@@ -137,6 +149,16 @@ function exitHintMode() {
   typed = '';
   for (const h of hints) h.badge.remove();
   hints = [];
+}
+
+// A synthetic ctrl/cmd+click — the browser treats it like the real thing and
+// opens the link in a new tab. window.open from a keydown would hit the popup
+// blocker, and there's no background script here for the tabs API.
+// ponytail: SPA routers that intercept clicks may ignore the modifier and
+// navigate in-place; real link semantics would need a background script.
+function openLinkInNewTab(el) {
+  const mod = /Mac/.test(navigator.platform) ? { metaKey: true } : { ctrlKey: true };
+  el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, ...mod }));
 }
 
 // --- helpers -----------------------------------------------------------------

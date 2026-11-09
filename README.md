@@ -17,7 +17,9 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
 - `H`: Go back in browser history
 - `L`: Go forward in browser history
 - `f`: Show a hint next to every clickable thing on screen — type its code to follow it
+- `F`: Same, but opens the picked link in a new tab
   - One character per hint when there are few enough targets, two otherwise
+  - Hint letters go home-row-first (`a s d f …`), so common hints sit under your fingers
   - `j`/`k` still scroll while hints are showing
   - `Backspace` undoes a typed character, `Esc` cancels
 - `Esc`: Also blurs a focused text field, so `j`/`k` work again afterwards
