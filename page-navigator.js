@@ -1,418 +1,181 @@
 /**
- * Vim-Style Page Navigation Firefox Extension
- * 
- * Navigation controls:
- * - j: Scroll down
- * - k: Scroll up
- * - gg: Go to top of page
- * - G: Go to bottom of page
- * - f: Enter link-hint mode, display 2-letter codes for links
- *     (type the code to navigate to that link)
- * - H: Go back in browsing history
- * - L: Go forward in browsing history
+ * Vim-Style Page Navigation
+ *
+ * j / k    scroll down / up (hold to keep scrolling — native key repeat)
+ * gg / G   top / bottom of page
+ * H / L    history back / forward
+ * f        hint mode: type a hint's code to follow it, Esc to cancel
+ * Esc      also blurs a focused form field so j/k work again
  */
 
-// Scroll amount for each j/k press (in pixels)
-const SCROLL_AMOUNT = 60;
+const SCROLL_AMOUNT = 60; // px per j/k press
+const GG_TIMEOUT = 500; // ms allowed between the two g's
+const HINT_CHARS = 'abcdehilmnopqrstuvwxyz12345678'; // j, k, g, f stay reserved for navigation
+const MAX_HINTS = HINT_CHARS.length ** 2;
+const CLICKABLE = 'a[href], button, [role="button"], input:not([type="hidden"]), textarea, select';
+const TEXT_INPUT_TYPES = ['text', 'search', 'email', 'password', 'url', 'tel', 'number'];
 
-// To track multi-key sequences (for "gg")
-let keySequence = '';
-let keySequenceTimer = null;
-const KEY_SEQUENCE_TIMEOUT = 1000; // 1 second timeout for key sequence
+let lastKey = '';
+let lastKeyTime = 0;
 
-// Continuous scrolling support
-let isScrolling = false;
-let scrollDirection = 0;
-let scrollInterval = null;
-const SCROLL_SPEED = 10; // Lower is faster (milliseconds between scroll steps)
+let hintMode = false;
+let hints = []; // { badge, target, code, wantsFocus }
+let typed = '';
 
-// Link hint mode variables
-let isLinkHintMode = false;
-let linkHints = [];
-let currentHintCode = '';
-const EXCLUDED_CHARS = ['j', 'k', 'g', 'f']; // Characters we don't use for hints
-const HINT_CHARS = 'abcdehilmnopqrstuvwxyz12345678'; // Characters we do use
-
-// Function to start continuous scrolling
-function startContinuousScroll(direction) {
-  // Clear any existing interval
-  if (scrollInterval) {
-    clearInterval(scrollInterval);
-  }
-  
-  // Set scrolling state
-  isScrolling = true;
-  scrollDirection = direction;
-  
-  // Start interval for continuous scrolling
-  scrollInterval = setInterval(() => {
-    window.scrollBy({
-      top: SCROLL_AMOUNT * direction,
-      behavior: 'auto' // Use 'auto' for continuous scrolling to be more responsive
-    });
-  }, SCROLL_SPEED);
-}
-
-// Function to stop continuous scrolling
-function stopContinuousScroll() {
-  if (scrollInterval) {
-    clearInterval(scrollInterval);
-    scrollInterval = null;
-  }
-  isScrolling = false;
-  scrollDirection = 0;
-}
-
-// Main event listener for keyboard input
 document.addEventListener('keydown', (event) => {
-  // Ignore inputs when focus is on form elements
+  if (hintMode) return handleHintKey(event);
+  if (event.ctrlKey || event.metaKey || event.altKey) return; // don't fight browser shortcuts
+
   if (isUserTyping()) {
+    if (event.key === 'Escape') document.activeElement.blur();
     return;
   }
-  
-  // If in link hint mode, handle differently
-  if (isLinkHintMode) {
-    handleLinkHintModeKeypress(event);
-    return;
-  }
-  
-  // Clear key sequence after timeout
-  if (keySequenceTimer) {
-    clearTimeout(keySequenceTimer);
-  }
-  
-  keySequenceTimer = setTimeout(() => {
-    keySequence = '';
-  }, KEY_SEQUENCE_TIMEOUT);
-  
-  // Add key to sequence
-  keySequence += event.key;
-  
-  // Handle navigation based on key presses
+
   switch (event.key) {
-    case 'j':
-      // Scroll down
-      window.scrollBy({
-        top: SCROLL_AMOUNT,
-        behavior: 'auto' // Changed to 'auto' for faster initial response
-      });
-      
-      // Start continuous scrolling if key is held down
-      if (!isScrolling || scrollDirection !== 1) {
-        startContinuousScroll(1); // 1 for down
+    case 'j': window.scrollBy(0, SCROLL_AMOUNT); break;
+    case 'k': window.scrollBy(0, -SCROLL_AMOUNT); break;
+    case 'G': window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); break;
+    case 'H': window.history.back(); break;
+    case 'L': window.history.forward(); break;
+    case 'g':
+      if (lastKey === 'g' && Date.now() - lastKeyTime < GG_TIMEOUT) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       break;
-      
-    case 'k':
-      // Scroll up
-      window.scrollBy({
-        top: -SCROLL_AMOUNT,
-        behavior: 'auto' // Changed to 'auto' for faster initial response
-      });
-      
-      // Start continuous scrolling if key is held down
-      if (!isScrolling || scrollDirection !== -1) {
-        startContinuousScroll(-1); // -1 for up
-      }
-      break;
-      
-    case 'G':
-      // Go to bottom of page
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'auto'
-      });
-      break;
-      
     case 'f':
-      // Enter link hint mode
-      event.preventDefault();
-      enterLinkHintMode();
-      break;
-      
-    case 'H':
-      // Go back in browsing history
-      window.history.back();
-      break;
-      
-    case 'L':
-      // Go forward in browsing history
-      window.history.forward();
+      if (!event.repeat) {
+        event.preventDefault();
+        enterHintMode();
+      }
       break;
   }
-  
-  // Handle the "gg" sequence to go to top of page
-  if (keySequence.endsWith('gg')) {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    keySequence = '';
-  }
+
+  lastKey = event.key;
+  lastKeyTime = Date.now();
 });
 
-/**
- * Enter link hint mode - show link hints and prepare for hint selection
- */
-function enterLinkHintMode() {
-  isLinkHintMode = true;
-  currentHintCode = '';
-  showLinkHints();
-}
+// A real mouse click dismisses any lingering hints.
+document.addEventListener('click', () => {
+  if (hintMode) exitHintMode();
+}, true);
 
-/**
- * Display link hints for all clickable elements on the page
- */
-function showLinkHints() {
-  // Clear any existing hints
-  clearLinkHints();
-  
-  // Find all clickable elements on the page
-  const links = document.querySelectorAll('a');
-  const buttons = document.querySelectorAll('button, input[type="button"], input[type="submit"], [role="button"]');
-  const inputs = document.querySelectorAll('input:not([type="button"]):not([type="submit"]), textarea, select');
-  
-  // Count visible elements to generate enough codes
-  const visibleElements = [];
-  
-  // Collect visible links
-  links.forEach(link => {
-    if (isElementVisible(link)) {
-      visibleElements.push({
-        element: link,
-        type: 'link'
-      });
-    }
-  });
-  
-  // Collect visible buttons
-  buttons.forEach(button => {
-    if (isElementVisible(button)) {
-      visibleElements.push({
-        element: button,
-        type: 'button'
-      });
-    }
-  });
-  
-  // Collect visible inputs
-  inputs.forEach(input => {
-    if (isElementVisible(input)) {
-      visibleElements.push({
-        element: input,
-        type: 'input'
-      });
-    }
-  });
-  
-  // Generate hint codes for all visible elements
-  const hintCodes = generateHintCodes(visibleElements.length);
-  
-  // Create hint elements for each clickable element
-  visibleElements.forEach((item, index) => {
-    const hintCode = hintCodes[index];
-    createLinkHint(item.element, hintCode, index, item.type);
+// --- link hints --------------------------------------------------------------
+
+function enterHintMode() {
+  // ponytail: hints are a snapshot taken on f; links scrolled into view
+  // afterwards have none — press f again to refresh
+  const targets = [...document.querySelectorAll(CLICKABLE)]
+    .filter(isVisible)
+    .slice(0, MAX_HINTS);
+  if (!targets.length) return;
+
+  const codes = hintCodes(targets.length);
+  hintMode = true;
+  typed = '';
+
+  targets.forEach((target, i) => {
+    const rect = target.getBoundingClientRect();
+    const wantsFocus = target.tagName === 'TEXTAREA' ||
+      (target.tagName === 'INPUT' && TEXT_INPUT_TYPES.includes(target.type));
+    const badge = document.createElement('div');
+    badge.textContent = codes[i];
+    badge.style.cssText = `
+      position: absolute;
+      top: ${Math.max(0, rect.top + window.scrollY)}px;
+      left: ${Math.max(0, rect.left + window.scrollX)}px;
+      background: ${target.tagName === 'A' ? '#ffff00' : wantsFocus ? '#90ee90' : '#ffa500'};
+      color: #000;
+      border: 1px solid #000;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font: bold 12px monospace;
+      z-index: 2147483647;
+    `;
+    document.body.appendChild(badge);
+    hints.push({ badge, target, code: codes[i], wantsFocus });
   });
 }
 
-/**
- * Check if an element is visible in the viewport
- */
-function isElementVisible(element) {
-  const rect = element.getBoundingClientRect();
-  return (
-    rect.width > 0 &&
-    rect.height > 0 &&
-    rect.top >= 0 &&
-    rect.left >= 0 &&
-    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.right <= (window.innerWidth || document.documentElement.clientWidth) &&
-    getComputedStyle(element).display !== 'none' &&
-    getComputedStyle(element).visibility !== 'hidden' &&
-    element.offsetParent !== null
-  );
+function handleHintKey(event) {
+  if (event.key === 'Escape') return exitHintMode();
+  if (event.ctrlKey || event.metaKey || event.altKey) return; // F5, ctrl+r etc. still work
+  // j/k keep scrolling with hints up; hint codes never contain them
+  if (event.key === 'j' || event.key === 'k') {
+    window.scrollBy(0, event.key === 'j' ? SCROLL_AMOUNT : -SCROLL_AMOUNT);
+    return;
+  }
+  if (event.key === 'Backspace') {
+    event.preventDefault();
+    typed = typed.slice(0, -1);
+    return updateHints();
+  }
+  if (event.key.length !== 1) return; // ignore bare Shift and friends
+  event.preventDefault();
+  typed += event.key.toLowerCase();
+  updateHints();
 }
 
-/**
- * Generate 2-character hint codes for links
- */
-function generateHintCodes(count) {
+function updateHints() {
+  let exact = null;
+  let anyMatch = false;
+  for (const h of hints) {
+    const match = h.code.startsWith(typed);
+    h.badge.style.display = match ? '' : 'none';
+    if (match) anyMatch = true;
+    if (h.code === typed) exact = h;
+  }
+  if (exact) {
+    exitHintMode();
+    exact.wantsFocus ? exact.target.focus() : exact.target.click();
+  } else if (!anyMatch) {
+    exitHintMode(); // a typo is a dead end, not a trap
+  }
+}
+
+function exitHintMode() {
+  hintMode = false;
+  typed = '';
+  for (const h of hints) h.badge.remove();
+  hints = [];
+}
+
+// --- helpers -----------------------------------------------------------------
+
+// One char per hint while they fit (most pages: one keystroke to follow a
+// link), two chars past that — enough for MAX_HINTS targets.
+function hintCodes(count) {
+  if (count <= HINT_CHARS.length) return HINT_CHARS.slice(0, count).split('');
   const codes = [];
-  const charsLength = HINT_CHARS.length;
-  
-  // Generate 2-letter codes
-  for (let i = 0; i < charsLength; i++) {
-    for (let j = 0; j < charsLength; j++) {
-      codes.push(HINT_CHARS[i] + HINT_CHARS[j]);
-      if (codes.length >= count) {
-        return codes;
-      }
+  for (const a of HINT_CHARS) {
+    for (const b of HINT_CHARS) {
+      codes.push(a + b);
+      if (codes.length === count) return codes;
     }
   }
-  
   return codes;
 }
 
-/**
- * Create and position a link hint element
- */
-function createLinkHint(element, hintCode, index, type) {
-  const rect = element.getBoundingClientRect();
-  
-  // Create hint element
-  const hintElement = document.createElement('div');
-  hintElement.textContent = hintCode;
-  hintElement.className = 'vim-nav-link-hint';
-  
-  // Style based on element type
-  let bgColor = '#ffff00'; // Default yellow for links
-  if (type === 'button') {
-    bgColor = '#ffa500'; // Orange for buttons
-  } else if (type === 'input') {
-    bgColor = '#90ee90'; // Light green for input elements
-  }
-  
-  hintElement.style.cssText = `
-    position: fixed;
-    top: ${rect.top - 10}px;
-    left: ${rect.left - 10}px;
-    background-color: ${bgColor};
-    color: #000000;
-    border: 1px solid #000000;
-    padding: 2px 4px;
-    font-size: 12px;
-    font-weight: bold;
-    z-index: 10000;
-    border-radius: 4px;
-    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
-  `;
-  
-  document.body.appendChild(hintElement);
-  
-  // Add to link hints array to keep track
-  linkHints.push({
-    element: hintElement,
-    target: element,
-    code: hintCode,
-    type: type
-  });
-}
-
-/**
- * Handle keypresses while in link hint mode
- */
-function handleLinkHintModeKeypress(event) {
-  // Escape key exits link hint mode
-  if (event.key === 'Escape') {
-    exitLinkHintMode();
-    return;
-  }
-  
-  // Add character to current hint code
-  const key = event.key.toLowerCase();
-  
-  // If this is the first character, filter to only show matching hints
-  if (currentHintCode === '') {
-    // Check if any hints start with this character
-    const matchingHints = linkHints.filter(hint => 
-      hint.code.startsWith(key)
-    );
-    
-    // If no matches, exit hint mode
-    if (matchingHints.length === 0) {
-      exitLinkHintMode();
-      return;
-    }
-    
-    // Hide all hints that don't match
-    linkHints.forEach(hint => {
-      if (!hint.code.startsWith(key)) {
-        hint.element.style.display = 'none';
-      } else {
-        hint.element.style.backgroundColor = '#88ff88'; // Highlight matching hints
-      }
-    });
-  }
-  
-  currentHintCode += key;
-  
-  // Check if the current input matches any hint
-  const matchedHint = linkHints.find(hint => hint.code === currentHintCode);
-  
-  // If we have an exact match, activate the element
-  if (matchedHint) {
-    activateElement(matchedHint.target, matchedHint.type);
-    exitLinkHintMode();
-    event.preventDefault();
-    return;
-  }
-  
-  // Check if we still have potential matches
-  const potentialMatches = linkHints.filter(hint => 
-    hint.code.startsWith(currentHintCode)
-  );
-  
-  // If no potential matches, exit hint mode
-  if (potentialMatches.length === 0) {
-    exitLinkHintMode();
-  } else {
-    // Update highlighting of potential matches
-    linkHints.forEach(hint => {
-      if (hint.code.startsWith(currentHintCode)) {
-        hint.element.style.backgroundColor = '#88ff88'; // Brighter green for better matches
-      } else if (hint.element.style.display !== 'none') {
-        hint.element.style.backgroundColor = '#ffff88'; // Dimmer yellow for less relevant
-      }
-    });
-  }
-  
-  event.preventDefault();
-}
-
-/**
- * Activate the targeted element based on its type
- */
-function activateElement(element, type) {
-  if (type === 'input') {
-    element.focus();
-  } else {
-    // For links and buttons, simulate a click
-    element.click();
-  }
-}
-
-/**
- * Exit link hint mode and clean up
- */
-function exitLinkHintMode() {
-  isLinkHintMode = false;
-  currentHintCode = '';
-  clearLinkHints();
-}
-
-/**
- * Remove all link hint elements from the page
- */
-function clearLinkHints() {
-  linkHints.forEach(hint => {
-    if (hint.element && hint.element.parentNode) {
-      hint.element.parentNode.removeChild(hint.element);
-    }
-  });
-  linkHints = [];
-}
-
-/**
- * Check if user is currently typing in a form element
- * to avoid intercepting keyboard inputs when typing
- */
-function isUserTyping() {
-  const activeElement = document.activeElement;
-  const inputElements = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'];
-  const isEditable = activeElement.isContentEditable;
-  
+function isVisible(el) {
+  const rect = el.getBoundingClientRect();
+  const style = getComputedStyle(el);
   return (
-    inputElements.includes(activeElement.tagName) || 
-    isEditable
+    rect.width > 0 &&
+    rect.height > 0 &&
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.top < window.innerHeight &&
+    rect.left < window.innerWidth &&
+    style.display !== 'none' &&
+    style.visibility !== 'hidden'
+  );
+}
+
+function isUserTyping() {
+  const el = document.activeElement;
+  return (
+    el.isContentEditable ||
+    el.tagName === 'INPUT' ||
+    el.tagName === 'TEXTAREA' ||
+    el.tagName === 'SELECT'
   );
 }

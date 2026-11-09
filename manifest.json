@@ -1,8 +1,8 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Vim-Style Page Navigation",
-  "version": "1.0",
-  "description": "Navigate pages using vim-style keyboard shortcuts (j/k for scrolling, gg/G for top/bottom, / for link hints)",
+  "version": "1.1",
+  "description": "Navigate pages using vim-style keyboard shortcuts (j/k to scroll, gg/G for top/bottom, f for link hints)",
   "icons": {
     "48": "icons/icon-48.jpg",
     "96": "icons/icon-96.jpg"
