@@ -11,6 +11,17 @@
     "default_title": "Vim-Style Page Navigation",
     "default_popup": "popup.html"
   },
+  "background": {
+    "scripts": ["site-toggle.js", "background.js"]
+  },
+  "commands": {
+    "toggle-site": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Enable/disable on this site"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

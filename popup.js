@@ -31,10 +31,7 @@ async function render() {
   hostEl.textContent = host;
   toggleBtn.textContent = disabled ? 'Enable on this site' : 'Disable on this site';
   toggleBtn.onclick = async () => {
-    const next = disabled
-      ? disabledHosts.filter((h) => h !== host)
-      : [...disabledHosts, host];
-    await browser.storage.local.set({ disabledHosts: next });
+    await toggleSiteDisabled(host); // shared with the keyboard command
     render();
   };
 }

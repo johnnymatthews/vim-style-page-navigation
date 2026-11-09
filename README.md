@@ -27,14 +27,19 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
 
 ## Features
 
-- No settings to tune, no background script — one content script plus a tiny popup
+- No settings to tune — one content script, a tiny popup, and a 10-line event page for the keyboard toggle
 - Shortcuts stay out of the way while you're typing in a form
 - Browser shortcuts (ctrl/cmd combos, F5, …) pass through untouched
 - Works on all websites
 
 ## Disabling it on specific sites
 
-Some sites (Gmail, GitHub, …) ship their own keyboard shortcuts. Click the extension's toolbar icon and hit **Disable on this site** — the extension goes fully inert on that domain, instantly, across all open tabs. Click again to re-enable. The list is kept in `storage.local`.
+Some sites (Gmail, GitHub, …) ship their own keyboard shortcuts. Two ways to get out of their way:
+
+- **Toolbar popup**: click the extension's icon and hit **Disable on this site**
+- **Keyboard**: `Ctrl+Shift+Y` toggles the current site from anywhere — including sites where the extension is disabled, which is exactly when you can't reach a page-level key. Remap it at `about:addons` → the gear icon → **Manage Extension Shortcuts**
+
+Either way, the change applies instantly across all open tabs — no reload. The list is kept in `storage.local`.
 
 ## Permissions
 
@@ -63,6 +68,8 @@ vim-style-page-navigation/
 ├── manifest.json            # Extension metadata
 ├── page-navigator.js        # Content script: all the navigation logic
 ├── popup.html / popup.js    # Toolbar popup: per-site on/off switch
+├── background.js            # Event page: keyboard toggle command
+├── site-toggle.js           # Toggle logic shared by popup and background
 ├── package-extension.sh     # Builds the zip for submission
 ├── test-page-navigator.js   # Self-check: node test-page-navigator.js
 ├── README.md

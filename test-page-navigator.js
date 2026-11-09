@@ -4,7 +4,8 @@
  * Loads the content script in a vm with a stubbed DOM and pokes the core
  * logic: scrolling keys, modifier guard, gg sequence, typing guard, hint
  * activation (same tab vs. F's new tab), the ? help overlay, the per-site
- * disable switch, and hint-code generation. No framework, just assert.
+ * disable switch, the background command that toggles it by keyboard, and
+ * hint-code generation. No framework, just assert.
  */
 const assert = require('assert');
 const fs = require('fs');
@@ -149,6 +150,34 @@ async function main() {
   assert.strictEqual(hintCodes(35)[0], 'aa');
   assert.strictEqual(hintCodes(35)[34], 'sa');
   assert.strictEqual(hintCodes(34 ** 2).length, 1156);
+
+  // --- background world: the keyboard toggle command ---
+  const stored = { disabledHosts: [] };
+  let commandHandler;
+  const bgSandbox = {
+    URL,
+    browser: {
+      commands: { onCommand: { addListener: (fn) => { commandHandler = fn; } } },
+      tabs: { query: async () => [{ url: 'https://news.ycombinator.com/item?id=1' }] },
+      storage: {
+        local: {
+          get: async () => ({ disabledHosts: stored.disabledHosts }),
+          set: async (v) => { stored.disabledHosts = v.disabledHosts; },
+        },
+      },
+    },
+  };
+  vm.createContext(bgSandbox);
+  vm.runInContext(fs.readFileSync(`${__dirname}/site-toggle.js`, 'utf8'), bgSandbox);
+  vm.runInContext(fs.readFileSync(`${__dirname}/background.js`, 'utf8'), bgSandbox);
+
+  // (arrays again cross vm realms, so compare via join)
+  await commandHandler('toggle-site');
+  assert.strictEqual(stored.disabledHosts.join(), 'news.ycombinator.com');
+  await commandHandler('toggle-site');
+  assert.strictEqual(stored.disabledHosts.length, 0);
+  await commandHandler('some-other-command'); // ignored
+  assert.strictEqual(stored.disabledHosts.length, 0);
 
   console.log('ok — page-navigator self-check passed');
 }
