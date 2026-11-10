@@ -5,6 +5,9 @@ on:
     branches: [firefox/stable]
   workflow_dispatch:
 
+permissions:
+  contents: write # so the built-in GITHUB_TOKEN can create releases
+
 jobs:
   package:
     runs-on: ubuntu-latest
@@ -28,3 +31,20 @@ jobs:
         with:
           name: vim-style-page-navigation
           path: vim-style-page-navigation-*.zip
+
+      # Push only: a manual Run workflow dispatch builds and tests but doesn't touch releases.
+      - name: Publish the release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(grep -o '"version": *"[^"]*"' manifest.json | cut -d'"' -f4)
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists and is immutable. Bump \"version\" in manifest.json to publish a new one."
+            exit 0
+          fi
+          gh release create "$TAG" "vim-style-page-navigation-$VERSION.zip" \
+            --title "Vim-Style Page Navigation $TAG" \
+            --notes "Built from commit ${GITHUB_SHA}. Upload this zip to addons.mozilla.org." \
+            --latest
