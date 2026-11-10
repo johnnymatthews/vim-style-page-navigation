@@ -1,0 +1,30 @@
+name: build
+
+on:
+  push:
+    branches: [firefox/stable]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # No npm anywhere: node and zip come preinstalled on the runner.
+      - name: Syntax-check and self-test
+        run: |
+          node --check page-navigator.js
+          node --check popup.js
+          node --check background.js
+          node --check site-toggle.js
+          node test-page-navigator.js
+
+      - name: Build the extension zip
+        run: bash package-extension.sh
+
+      - name: Upload the zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: vim-style-page-navigation
+          path: vim-style-page-navigation-*.zip
