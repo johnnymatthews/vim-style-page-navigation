@@ -192,13 +192,25 @@ function showHelp() {
     ['Esc', 'cancel hints, blur a form field'],
     ['?', 'this help'],
   ];
-  const card = document.createElement('div');
-  card.style.cssText = 'background:#1e1e1e;color:#eee;padding:18px 26px;border-radius:8px;font:14px/1.9 monospace;box-shadow:0 8px 30px rgba(0,0,0,.6);';
-  card.innerHTML = '<b>vim-style page navigation</b><br>' +
-    rows.map(([k, d]) => `<span style="color:#ffd75f">${k.padEnd(8)}</span>${d}`).join('<br>') +
-    '<br><span style="color:#888">hint mode: type a code · j/k scroll · backspace undoes · esc cancels</span>';
-  helpOverlay = document.createElement('div');
-  helpOverlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);';
+  // textContent everywhere, no innerHTML — nothing for reviewers to squint at
+  const el = (tag, text, css) => {
+    const node = document.createElement(tag);
+    node.textContent = text;
+    if (css) node.style.cssText = css;
+    return node;
+  };
+  const card = el('div', '', 'background:#1e1e1e;color:#eee;padding:18px 26px;border-radius:8px;font:14px/1.9 monospace;box-shadow:0 8px 30px rgba(0,0,0,.6);');
+  card.append(
+    el('b', 'vim-style page navigation'),
+    ...rows.flatMap(([keys, desc]) => [
+      document.createElement('br'),
+      el('span', keys.padEnd(8), 'color:#ffd75f'),
+      document.createTextNode(desc),
+    ]),
+    document.createElement('br'),
+    el('span', 'hint mode: type a code · j/k scroll · backspace undoes · esc cancels', 'color:#888'),
+  );
+  helpOverlay = el('div', '', 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);');
   helpOverlay.appendChild(card);
   document.body.appendChild(helpOverlay);
 }

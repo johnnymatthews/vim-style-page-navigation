@@ -39,7 +39,8 @@ const sandbox = {
     activeElement: body,
     documentElement: { scrollHeight: 5000 },
     querySelectorAll: () => [],
-    createElement: () => ({ style: {}, textContent: '', innerHTML: '', remove() {}, appendChild() {} }),
+    createElement: () => ({ style: {}, textContent: '', remove() {}, append() {}, appendChild() {} }),
+    createTextNode: (text) => ({ text }),
     body: { appendChild() {} },
   },
   window: {

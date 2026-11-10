@@ -28,5 +28,11 @@
       "js": ["page-navigator.js"]
     }
   ],
-  "permissions": ["storage", "activeTab"]
+  "permissions": ["storage", "activeTab"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "vim-style-page-navigation@johnnymatthews.github",
+      "strict_min_version": "109.0"
+    }
+  }
 }
