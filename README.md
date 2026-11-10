@@ -16,7 +16,7 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
 - `G`: Go to bottom of page
 - `H`: Go back in browser history
 - `L`: Go forward in browser history
-- `f`: Show a hint next to every clickable thing on screen — type its code to follow it
+- `f`: Show a hint next to every clickable thing on screen. Type its code to follow it
 - `F`: Same, but opens the picked link in a new tab
   - One character per hint when there are few enough targets, two otherwise
   - Hint letters go home-row-first (`a s d f …`), so common hints sit under your fingers
@@ -27,19 +27,16 @@ A simple Firefox extension that adds vim-style keyboard navigation to any webpag
 
 ## Features
 
-- No settings to tune — one content script, a tiny popup, and a 10-line event page for the keyboard toggle
+- No settings to tune. Just one content script, a tiny popup, and a 10-line event page for the keyboard toggle
 - Shortcuts stay out of the way while you're typing in a form
 - Browser shortcuts (ctrl/cmd combos, F5, …) pass through untouched
 - Works on all websites
 
 ## Disabling it on specific sites
 
-Some sites (Gmail, GitHub, …) ship their own keyboard shortcuts. Two ways to get out of their way:
+Some sites (Gmail, GitHub, …) ship their own keyboard shortcuts. Click the extension's toolbar icon and hit **Disable on this site**, or press `Ctrl+Shift+Y` to toggle the current site from the keyboard. The keyboard route keeps working on sites where the extension is disabled, which is exactly when you can't reach a page-level key. Remap it at `about:addons` → gear icon → **Manage Extension Shortcuts**.
 
-- **Toolbar popup**: click the extension's icon and hit **Disable on this site**
-- **Keyboard**: `Ctrl+Shift+Y` toggles the current site from anywhere — including sites where the extension is disabled, which is exactly when you can't reach a page-level key. Remap it at `about:addons` → the gear icon → **Manage Extension Shortcuts**
-
-Either way, the change applies instantly across all open tabs — no reload. The list is kept in `storage.local`.
+Either way, the change applies instantly across all open tabs, no reload. The list lives in `storage.local`.
 
 ## Permissions
 
@@ -48,39 +45,44 @@ Either way, the change applies instantly across all open tabs — no reload. The
 
 ## Installation
 
-### Temporary Installation (for Development)
+### Temporary installation (for development)
 
 1. Open Firefox and navigate to `about:debugging`
 2. Click **This Firefox** in the sidebar
 3. Click **Load Temporary Add-on...**
 4. Navigate to the extension directory and select the `manifest.json` file
 
-### Permanent Installation
+### Permanent installation
 
-1. Run `./package-extension.sh` to build `vim-style-page-navigation.zip`
+1. Run `./package-extension.sh` to build a versioned zip
 2. Submit the zip to [Firefox Add-ons](https://addons.mozilla.org/developers/)
 3. After approval, users can install from the Firefox Add-ons website
 
-## Directory Structure
+## Directory structure
 
 ```
 vim-style-page-navigation/
-├── manifest.json            # Extension metadata
-├── page-navigator.js        # Content script: all the navigation logic
-├── popup.html / popup.js    # Toolbar popup: per-site on/off switch
-├── background.js            # Event page: keyboard toggle command
-├── site-toggle.js           # Toggle logic shared by popup and background
-├── package-extension.sh     # Builds the zip for submission
-├── test-page-navigator.js   # Self-check: node test-page-navigator.js
-├── README.md
-└── icons/
-    ├── icon-48.jpg
-    └── icon-96.jpg
+├── manifest.json            # Extension metadata: name, version, permissions, keyboard command
+├── page-navigator.js        # Content script with all the navigation logic
+├── popup.html               # Toolbar popup markup and styles
+├── popup.js                 # Toolbar popup behavior: shows the site, flips the switch
+├── background.js            # Event page that handles the Ctrl+Shift+Y toggle command
+├── site-toggle.js           # Enable/disable logic shared by the popup and background page
+├── package-extension.sh     # Builds the AMO submission zip, versioned from manifest.json
+├── test-page-navigator.js   # Dependency-free self-check: node test-page-navigator.js
+├── .gitignore               # Keeps built zips out of git
+├── README.md                # This file
+├── icons/                   # Extension icons
+│   ├── icon-48.jpg          # 48px, shown in the add-ons manager
+│   └── icon-96.jpg          # 96px, shown on the AMO listing
+└── .github/
+    └── workflows/
+        └── build.yml        # CI: self-check + zip build on every push to firefox/stable
 ```
 
 ## Customization
 
-- `SCROLL_AMOUNT` at the top of `page-navigator.js` sets how far each `j`/`k` press scrolls, in pixels (default: 60). Holding a key uses the browser's native key repeat.
+`SCROLL_AMOUNT` at the top of `page-navigator.js` sets how far each `j`/`k` press scrolls, in pixels (default: 60). Holding a key uses the browser's native key repeat.
 
 ## License
 
