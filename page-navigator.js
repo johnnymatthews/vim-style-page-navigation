@@ -39,11 +39,19 @@ browser.storage.onChanged.addListener((changes, area) => {
   if (!enabled) { exitHintMode(); hideHelp(); }
 });
 
+// Capture phase, on purpose. Page scripts load before this content script,
+// so their keydown handlers are registered first, and in the bubble phase
+// that means they see every key before we do (on GitHub, j/k move the
+// file-list cursor instead of scrolling). Capturing puts this handler in
+// front; consumeKey() then makes sure a key we act on never reaches theirs.
+// ponytail: a site that registers its own capture-phase keydown on document
+// before this script runs still sees keys first. Nothing short of surgery
+// fixes that, and no site we know of does it.
 document.addEventListener('keydown', (event) => {
   if (!enabled) return;
   if (hintMode) return handleHintKey(event);
-  if (helpOverlay) { hideHelp(); return; } // any key closes the help card
   if (event.ctrlKey || event.metaKey || event.altKey) return; // don't fight browser shortcuts
+  if (helpOverlay) { hideHelp(); return consumeKey(event); } // any plain key closes the help card
 
   if (isUserTyping()) {
     if (event.key === 'Escape') document.activeElement.blur();
@@ -51,32 +59,43 @@ document.addEventListener('keydown', (event) => {
   }
 
   switch (event.key) {
-    case 'j': window.scrollBy(0, SCROLL_AMOUNT); break;
-    case 'k': window.scrollBy(0, -SCROLL_AMOUNT); break;
-    case 'G': window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); break;
-    case 'H': window.history.back(); break;
-    case 'L': window.history.forward(); break;
+    case 'j': consumeKey(event); window.scrollBy(0, SCROLL_AMOUNT); break;
+    case 'k': consumeKey(event); window.scrollBy(0, -SCROLL_AMOUNT); break;
+    case 'G': consumeKey(event); window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }); break;
+    case 'H': consumeKey(event); window.history.back(); break;
+    case 'L': consumeKey(event); window.history.forward(); break;
     case 'g':
+      // only the second g of gg acts; a lone g passes through untouched
       if (lastKey === 'g' && Date.now() - lastKeyTime < GG_TIMEOUT) {
+        consumeKey(event);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       break;
     case 'f':
     case 'F':
       if (!event.repeat) {
-        event.preventDefault();
+        consumeKey(event);
         enterHintMode(event.key === 'F');
       }
       break;
     case '?':
-      event.preventDefault();
+      consumeKey(event);
       showHelp();
       break;
   }
 
   lastKey = event.key;
   lastKeyTime = Date.now();
-});
+}, true);
+
+// Whenever we act on a key, the page's own shortcuts must not act on it too.
+// preventDefault alone isn't enough for that (site handlers listen for the
+// same event), so the event is stopped here in the capture phase, before it
+// can reach any of them.
+function consumeKey(event) {
+  event.preventDefault();
+  event.stopPropagation();
+}
 
 // A real mouse click dismisses any lingering hints or help.
 document.addEventListener('click', () => {
@@ -123,20 +142,24 @@ function enterHintMode(newTab = false) {
 }
 
 function handleHintKey(event) {
-  if (event.key === 'Escape') return exitHintMode();
+  if (event.key === 'Escape') {
+    consumeKey(event);
+    return exitHintMode();
+  }
   if (event.ctrlKey || event.metaKey || event.altKey) return; // F5, ctrl+r etc. still work
   // j/k keep scrolling with hints up; hint codes never contain them
   if (event.key === 'j' || event.key === 'k') {
+    consumeKey(event);
     window.scrollBy(0, event.key === 'j' ? SCROLL_AMOUNT : -SCROLL_AMOUNT);
     return;
   }
   if (event.key === 'Backspace') {
-    event.preventDefault();
+    consumeKey(event);
     typed = typed.slice(0, -1);
     return updateHints();
   }
   if (event.key.length !== 1) return; // ignore bare Shift and friends
-  event.preventDefault();
+  consumeKey(event);
   typed += event.key.toLowerCase();
   updateHints();
 }
