@@ -5,7 +5,10 @@
  * logic: scrolling keys, modifier guard, gg sequence, typing guard, hint
  * activation (same tab vs. F's new tab), the ? help overlay, the per-site
  * disable switch, the background command that toggles it by keyboard, and
- * hint-code generation. No framework, just assert.
+ * hint-code generation. Also checks the keydown handler is registered in
+ * the capture phase, and that keys we act on are consumed
+ * (preventDefault + stopPropagation) so a site's own shortcuts never see
+ * them. No framework, just assert.
  */
 const assert = require('assert');
 const fs = require('fs');
@@ -13,7 +16,13 @@ const vm = require('vm');
 
 const calls = [];
 let keydownHandler;
+let keydownCapture; // set when the script registers its keydown listener
 let storageListener;
+
+// Reset on every press, so each assertion can check whether that exact key
+// was consumed (the page never sees it) or passed through untouched.
+let prevented = false;
+let stopped = false;
 
 const body = { tagName: 'BODY', isContentEditable: false, blur() {} };
 const input = { tagName: 'INPUT', isContentEditable: false, blur() {} };
@@ -35,7 +44,12 @@ class FakeMouseEvent {
 
 const sandbox = {
   document: {
-    addEventListener: (type, fn) => { if (type === 'keydown') keydownHandler = fn; },
+    addEventListener: (type, fn, opts) => {
+      if (type === 'keydown') {
+        keydownHandler = fn;
+        keydownCapture = opts === true || Boolean(opts && opts.capture);
+      }
+    },
     activeElement: body,
     documentElement: { scrollHeight: 5000 },
     querySelectorAll: () => [],
@@ -73,19 +87,39 @@ async function main() {
   // let the initial storage.get().then() settle before pressing keys
   await new Promise((r) => setImmediate(r));
 
-  const press = (key, mods = {}) => keydownHandler({ key, repeat: false, preventDefault() {}, ...mods });
+  const press = (key, mods = {}) => {
+    prevented = false;
+    stopped = false;
+    keydownHandler({
+      key,
+      repeat: false,
+      preventDefault() { prevented = true; },
+      stopPropagation() { stopped = true; },
+      ...mods,
+    });
+  };
+  const consumed = () => prevented && stopped;
 
-  // j/k scroll one step each; browser shortcuts pass through untouched
+  // the handler must sit in the capture phase, or a page's own keydown
+  // handlers (GitHub's file-list cursor, say) see every key first
+  assert.strictEqual(keydownCapture, true);
+
+  // j/k scroll one step each and are consumed; browser shortcuts pass
+  // through untouched
   press('j');
   press('k');
   assert.deepStrictEqual(calls, [60, -60]);
+  assert.ok(consumed(), 'k was consumed');
   press('j', { ctrlKey: true });
   assert.strictEqual(calls.length, 2);
+  assert.ok(!prevented && !stopped, 'ctrl+j belongs to the browser');
 
-  // gg goes to the top, G to the bottom
+  // gg goes to the top, G to the bottom; a lone g does nothing
   calls.length = 0;
   press('g');
+  assert.ok(!prevented, 'a lone g passes through');
   press('g');
+  assert.ok(consumed(), 'the second g of gg was consumed');
   press('G');
   assert.deepStrictEqual(calls, [0, 5000]);
 
@@ -95,29 +129,41 @@ async function main() {
   press('g');
   press('j');
   assert.deepStrictEqual(calls, [60, 60]);
+  assert.ok(consumed(), 'j after a stray g still scrolls');
 
   // H/L walk history
   press('H');
   press('L');
   assert.deepStrictEqual(calls.slice(-2), ['back', 'forward']);
+  assert.ok(consumed(), 'L was consumed');
 
-  // while typing in a form field, navigation keys stay out of the way
+  // while typing in a form field, navigation keys stay out of the way and
+  // keep belonging to the field: no scroll, no consumption
   sandbox.document.activeElement = input;
   calls.length = 0;
   press('j');
   assert.deepStrictEqual(calls, []);
+  assert.ok(!prevented && !stopped, 'a key typed in a field passes through');
   sandbox.document.activeElement = body;
 
   // f on a page with no clickable elements doesn't wedge hint mode
   press('f');
   press('j');
   assert.deepStrictEqual(calls, [60]);
+  assert.ok(consumed(), 'j scrolls once hint mode is off');
 
   // f + code clicks the link in place; F + code fires a modified click (new tab)
   sandbox.document.querySelectorAll = () => [fakeLink];
   press('f');
   press('a');
   assert.deepStrictEqual(calls.slice(-1), ['click']);
+  assert.ok(consumed(), 'the hint keypress was consumed');
+
+  // Esc cancels hint mode without the page hearing about it
+  press('f');
+  press('Escape');
+  assert.ok(consumed(), 'Esc in hint mode was consumed');
+
   press('F');
   press('a');
   assert.deepStrictEqual(calls.slice(-1), [['dispatch', 'click', true, false]]);
@@ -126,8 +172,10 @@ async function main() {
   // ? shows help; while it's up, keys don't act; any key dismisses it
   calls.length = 0;
   press('?');
+  assert.ok(consumed(), '? was consumed');
   press('j');
   assert.deepStrictEqual(calls, []); // the j was eaten dismissing help
+  assert.ok(consumed(), 'the help-dismissing j never reached the page');
   press('j');
   assert.deepStrictEqual(calls, [60]); // and now j scrolls again
 
@@ -137,6 +185,7 @@ async function main() {
   storageListener({ disabledHosts: { newValue: ['example.com'] } }, 'local');
   press('j');
   assert.deepStrictEqual(calls, []);
+  assert.ok(!prevented, 'a disabled host gets its keys back untouched');
   storageListener({ disabledHosts: { newValue: [] } }, 'local');
   press('j');
   assert.deepStrictEqual(calls, [60]);
